@@ -1,18 +1,134 @@
 aid: aeropay
 name: Aeropay
-description: 'Aeropay is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: 'Aeropay is a Chicago-based fintech operating a pay-by-bank network that moves money directly
+  between consumer bank accounts and merchants over ACH, Request for Payment (RfP) and RTP rails, without
+  cards. The product suite is Aerosync (branded bank linking and account connectivity), Pay (merchant
+  acceptance of bank payments), Payout (real-time merchant-to-consumer credits) and Guard (risk decisioning
+  and fraud prevention). Integrators use the Aeropay v2 REST API — a 32-operation OpenAPI 3.0.0 contract
+  covering token issuance, user creation and MFA confirmation, bank linking through an aggregator widget,
+  standard, preauthorized, payout and reversal transactions, transaction search, payment links, webhook
+  subscriptions, reporting and merchant reputation — alongside first-party Aerosync bank-linking SDKs for
+  web, React Native, Android, iOS and Flutter. Aeropay publishes a documentation llms.txt, a remote MCP
+  server for the API reference, a nine-topic webhook catalog, a 91-entry error glossary, a NACHA ACH return-code
+  glossary and a substantial sandbox exception-scenario harness. It is SOC 2 compliant and audits its ACH
+  operations annually against NACHA standards.'
+image: https://cdn.prod.website-files.com/6883a0f9156861b50901e79e/68d3ffdc98b692fcb2df6fa4_Aeropay-256xv2.png
 url: https://raw.githubusercontent.com/api-evangelist/aeropay/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-09-10'
 modified: '2026-09-10'
+position: Producing
 tags:
-- Company
-apis: []
+- Payments
+- Pay by bank
+- ACH
+- Open Banking
+- Fintech
+- Bank linking
+- Financial Services
+- Real-time payments
+- Webhook
+- Payouts
+- MCP
+- Risk & fraud
+tags_raw:
+- Payments
+- Pay by bank
+- ACH
+- Open banking
+- Fintech
+- Bank linking
+- Financial services
+- Real-time payments
+- Webhooks
+- Payouts
+- MCP
+- Risk & fraud
+apis:
+- aid: aeropay:aeropay-v2-api
+  name: Aeropay v2 API
+  description: The Aeropay v2 REST API for pay-by-bank money movement. Issue merchant- or userForMerchant-scoped
+    bearer tokens, create and confirm users, obtain Aerosync bank-linking credentials and attach the resulting
+    account, then create standard, preauthorized or payout transactions, capture or reverse them, search
+    transactions, send payment links, subscribe to webhooks, pull CSV/totals/batch reports and manage merchant
+    reputation. 32 operations over 26 paths, described by a published OpenAPI 3.0.0 document.
+  humanURL: https://dev.aero.inc/docs/getting-started
+  baseURL: https://api.aeropay.com/v2
+  tags:
+  - Payments
+  - Pay by bank
+  - ACH
+  - Payouts
+  properties:
+  - type: OpenAPI
+    url: openapi/aeropay-v2-openapi.yml
+  - type: OpenAPI
+    url: openapi/_original/aeropay-v2-openapi.json
+  - type: Documentation
+    url: https://dev.aero.inc/docs/getting-started
+  - type: APIReference
+    url: https://dev.aero.inc/reference/post_v2-token
+  - type: GettingStarted
+    url: https://dev.aero.inc/docs/api-quick-start
+  - type: Authentication
+    url: authentication/aeropay-authentication.yml
+  - type: Conventions
+    url: conventions/aeropay-conventions.yml
+  - type: Idempotency
+    url: conventions/aeropay-conventions.yml
+  - type: ErrorCatalog
+    url: errors/aeropay-problem-types.yml
+  - type: DataModel
+    url: data-model/aeropay-data-model.yml
+  - type: RateLimits
+    url: rate-limits/aeropay-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/aeropay-sandbox.yml
+  - type: Overlay
+    url: overlays/aeropay-v2-overlay.yaml
+- aid: aeropay:aeropay-webhooks
+  name: Aeropay Webhooks
+  description: Outbound HTTPS webhook deliveries covering nine topics across the ACH, RfP and RTP rails —
+    transaction_completed, transaction_voided, transaction_refunded, transaction_declined, transaction_resolved,
+    preauthorized_transaction_created, user_suspended, user_active and merchant_reputation_updated. Subscriptions
+    are created with POST /v2/webhook; payloads carry payloadVersion 2.0. Aeropay retries up to five times
+    with exponential backoff and jitter when a callback fails to answer 200 within 3000ms. Aeropay publishes
+    no AsyncAPI document; the catalog below is derived from its webhook documentation.
+  humanURL: https://dev.aero.inc/docs/webhooks-1
+  baseURL: https://api.aeropay.com/v2
+  tags:
+  - Webhook
+  - Payments
+  - ACH
+  properties:
+  - type: Webhooks
+    url: asyncapi/aeropay-webhooks-asyncapi.yml
+  - type: Documentation
+    url: https://dev.aero.inc/docs/webhooks-1
+  - type: Documentation
+    url: https://dev.aero.inc/docs/webhook-security
+- aid: aeropay:aeropay-mcp
+  name: Aeropay API MCP Server
+  description: A remote Model Context Protocol server hosted by Aeropay at https://dev.aero.inc/mcp, documented
+    for Cursor, Windsurf and Claude Desktop. Anonymous tools/list returns four spec-driven tools — list-endpoints,
+    get-endpoint, search-endpoints and execute-request — that read the Aeropay v2 OpenAPI and can execute
+    a live API request from a HAR request object when the caller supplies their own Aeropay credentials.
+  humanURL: https://dev.aero.inc/docs/mcp
+  baseURL: https://dev.aero.inc/mcp
+  tags:
+  - MCP
+  - Payments
+  properties:
+  - type: MCPServer
+    url: mcp/aeropay-mcp.yml
+  - type: MCPServer
+    url: https://dev.aero.inc/mcp
+  - type: ToolCrosswalk
+    url: mcp/aeropay-tool-crosswalk.yml
+  - type: Documentation
+    url: https://dev.aero.inc/docs/mcp
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
@@ -20,4 +136,93 @@ maintainers:
   email: info@apis.io
 common:
 - type: Website
-  url: https://www.nasdaqprivatemarket.com/
+  url: https://www.aeropay.com/
+- type: DeveloperPortal
+  url: https://www.aeropay.com/developers
+- type: Documentation
+  url: https://dev.aero.inc/docs/getting-started
+- type: APIReference
+  url: https://dev.aero.inc/reference/post_v2-token
+- type: GettingStarted
+  url: https://dev.aero.inc/docs/api-quick-start
+- type: Support
+  url: https://www.aeropay.com/personal/support
+- type: HelpCenter
+  url: https://help.aeropay.com/
+- type: Blog
+  url: https://www.aeropay.com/blog
+- type: GitHubOrganization
+  url: https://github.com/Aeropay-inc
+- type: SignUp
+  url: https://portal.aeropay.com/login
+- type: Pricing
+  url: https://www.aeropay.com/demo
+- type: TermsOfService
+  url: https://www.aeropay.com/legal/terms-of-service
+- type: PrivacyPolicy
+  url: https://www.aeropay.com/legal/privacy-policy
+- type: TrustCenter
+  url: security/aeropay-trust-center.yml
+- type: Trust
+  url: https://www.aeropay.com/trust-center
+- type: Compliance
+  url: https://www.aeropay.com/trust-center
+- type: Conformance
+  url: conformance/aeropay-conformance.yml
+- type: DomainSecurity
+  url: security/aeropay-domain-security.yml
+- type: Authentication
+  url: authentication/aeropay-authentication.yml
+- type: Conventions
+  url: conventions/aeropay-conventions.yml
+- type: Idempotency
+  url: conventions/aeropay-conventions.yml
+- type: ErrorCatalog
+  url: errors/aeropay-problem-types.yml
+- type: ErrorCodes
+  url: errors/aeropay-error-codes.yml
+- type: DeclineCodes
+  url: errors/aeropay-decline-codes.yml
+- type: DataModel
+  url: data-model/aeropay-data-model.yml
+- type: Lifecycle
+  url: lifecycle/aeropay-lifecycle.yml
+- type: ChangeLog
+  url: changelog/aeropay-changelog.yml
+- type: ChangeLog
+  url: https://dev.aero.inc/docs/release-notes
+- type: RateLimits
+  url: rate-limits/aeropay-rate-limits.yml
+- type: Plans
+  url: plans/aeropay-plans-pricing.yml
+- type: Packages
+  url: packages/aeropay-packages.yml
+- type: SDKs
+  url: packages/aeropay-packages.yml
+- type: SDKs
+  url: https://dev.aero.inc/docs/npm-sdk
+- type: Components
+  url: components/aeropay-components.yml
+- type: Sandbox
+  url: sandbox/aeropay-sandbox.yml
+- type: MCPServer
+  url: mcp/aeropay-mcp.yml
+- type: ToolCrosswalk
+  url: mcp/aeropay-tool-crosswalk.yml
+- type: Webhooks
+  url: asyncapi/aeropay-webhooks-asyncapi.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: LLMsTxt
+  url: llms/aeropay-llms.txt
+- type: LLMsTxt
+  url: https://dev.aero.inc/llms.txt
+- type: LLMsTxt
+  url: https://www.aeropay.com/llms.txt
+- type: Overlay
+  url: overlays/aeropay-v2-overlay.yaml
+x-enrichment:
+  date: '2026-09-10'
+  status: enriched
+  artifacts_added: 30
+  pass: local-v3

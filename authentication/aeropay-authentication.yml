@@ -1,0 +1,112 @@
+generated: '2026-09-10'
+method: searched
+source: openapi/aeropay-v2-openapi.yml
+docs: https://dev.aero.inc/docs/token-scopes
+docs_additional:
+- https://dev.aero.inc/reference/post_v2-token
+- https://dev.aero.inc/docs/standard-transaction-step-1-authentication
+- https://dev.aero.inc/docs/oauth-connections
+spec_gap: 'The published OpenAPI 3.0.0 document declares components.securitySchemes as an EMPTY object
+  and sets no root-level or operation-level security[]. Authentication is expressed only as a plain
+  `authorization` header parameter on 31 of the 32 operations, so no machine reading the contract alone
+  can discover the auth model. Everything below is read from the prose documentation, which is why this
+  artifact is method: searched rather than derived — derive-authentication.py returns zero schemes.'
+summary:
+  types:
+  - http-bearer
+  - credentials-exchange
+  api_key_in:
+  - body
+  oauth2_flows: []
+  openid_connect: false
+  mutual_tls: false
+schemes:
+- name: AeropayBearerToken
+  type: http
+  scheme: bearer
+  bearer_format: JWT
+  in: header
+  parameter: authorization
+  format: 'Bearer {{token}}'
+  applies_to: 31 of 32 operations (every operation except POST /v2/token)
+  ttl: 30 minutes
+  source: https://dev.aero.inc/reference/post_v2-token
+  description: 'A transient JSON Web Token minted by POST /v2/token. Tokens expire 30 minutes after
+    issue and must be re-requested; there is no refresh-token flow.'
+- name: AeropayApiCredentials
+  type: credentials-exchange
+  in: request-body
+  parameters:
+  - apiKey
+  - apiSecret
+  - id
+  - scope
+  - userId
+  applies_to: POST /v2/token only
+  environments_separate: true
+  source: https://dev.aero.inc/docs/token-scopes
+  description: 'Merchant API key and secret plus a numeric merchant id are POSTed as a JSON body to
+    /v2/token in exchange for a bearer token. Keys are environment-specific — a sandbox key will not
+    authenticate against production (error AP002).'
+token_scopes:
+  model: 'Aeropay calls these "scopes" but they are NOT OAuth 2.0 scopes — there is no authorization
+    server, no consent step and no scope string on a token request beyond a single enum. The `scope`
+    body parameter selects WHICH ACTOR the token represents, and each operation requires one specific
+    actor. No scopes/ artifact is emitted for this provider because there is no OAuth surface to
+    describe; the actor model is recorded here instead.'
+  docs: https://dev.aero.inc/docs/token-scopes
+  scopes:
+  - scope: merchant
+    required_parameters:
+    - apiKey
+    - apiSecret
+    - scope
+    - id
+    description: Acts on behalf of the merchant organisation.
+    example_operations:
+    - POST /v2/user
+    - POST /v2/transactionSearch
+    - POST /v2/payoutTransaction
+    - GET /v2/merchant/tipConfiguration
+  - scope: userForMerchant
+    required_parameters:
+    - apiKey
+    - apiSecret
+    - scope
+    - id
+    - userId
+    description: Acts on behalf of one Aeropay user created by that merchant.
+    example_operations:
+    - GET /v2/user
+    - GET /v2/bankAccounts
+    - GET /v2/aggregatorCredentials
+    - POST /v2/transaction
+    - POST /v2/preauthTransaction
+end_user_bank_authorization:
+  mechanism: 'Separate from API authentication. End users authorise access to their own bank account
+    through the Aerosync widget, which Aeropay describes as OAuth-first bank linking. The integrator
+    calls GET /v2/aggregatorCredentials to mint a one-time widget URL and token, the user completes the
+    bank''s own OAuth or credential flow inside the widget, and the returned connectionId is attached
+    with POST /v2/linkAccountFromAggregator.'
+  docs: https://dev.aero.inc/docs/oauth-connections
+auth_errors:
+  source: https://dev.aero.inc/docs/error-handling
+  note: 'Authentication failures are returned with an HTTP 200 body carrying an error object, not an HTTP
+    401, for most codes. See errors/aeropay-error-codes.yml.'
+  codes:
+  - code: AP001
+    meaning: API key and secret key required.
+  - code: AP002
+    meaning: Invalid API key or secret key, or wrong environment.
+  - code: AP003
+    meaning: Merchant account locked.
+  - code: AP004
+    meaning: Missing authorization header token.
+  - code: AP006
+    meaning: Client is not authorized for this scope.
+  - code: AP007
+    meaning: Token has expired.
+  - code: AP008
+    meaning: Invalid token.
+  - code: AP101
+    meaning: No authenticated user.

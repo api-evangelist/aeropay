@@ -1,0 +1,151 @@
+generated: '2026-09-10'
+method: searched
+source: https://dev.aero.inc/docs/testing
+source_additional:
+- https://dev.aero.inc/docs/getting-started
+- https://dev.aero.inc/docs/aerosync-test-banks
+- https://dev.aero.inc/docs/aerosync-sandbox-environment
+- https://dev.aero.inc/docs/error-handling
+environments:
+- name: sandbox
+  base_url: https://api.sandbox-pay.aero.inc/v2
+  portal: https://staging-portal.aeropay.com/login
+  purpose: Integration and testing.
+  self_serve: false
+  access: 'NOT self-serve. Aeropay states: "Before you begin, you must first request a test account in the
+    Aeropay sandbox environment. Please email support@aeropay.com - once approved, we will send you
+    sandbox credentials." A demo request at https://www.aeropay.com/demo is the other documented route.'
+- name: production
+  base_url: https://api.aeropay.com/v2
+  portal: https://portal.aeropay.com/login
+  purpose: Live transactions.
+  access: 'Granted after Aeropay reviews the integration. A launch checklist is published at
+    https://dev.aero.inc/docs/launch-checklist.'
+key_separation:
+  model: environment-scoped-credentials
+  prefixes: null
+  note: 'API keys are environment-specific but Aeropay publishes NO key prefix convention (there is no
+    sk_test_/sk_live_ equivalent). A key cannot be inspected to tell which environment it belongs to;
+    using the wrong one returns AP002 "Invalid API key or secret key". This is a real ergonomics gap —
+    an agent holding two credentials has no way to tell them apart without calling the API.'
+test_clock:
+  supported: false
+  note: 'No time simulation. ACH settlement timing (batch windows, 2-3 business day refunds, same-business-day
+    void windows) cannot be fast-forwarded in sandbox.'
+otp_bypass:
+- surface: POST /v2/confirmUser
+  value: '000000'
+  behaviour: Completes the SMS MFA challenge without the real code.
+  availability: All sandbox merchants by default.
+  note: An SMS is still sent to the phone number on POST /v2/user; the bypass only satisfies the challenge.
+- surface: Aerosync bank-linking widget
+  value: '0000'
+  behaviour: Passes the 4-digit widget OTP challenge.
+  availability: 'Only when the widget is initialised with the merchant''s designated configurationId.
+    Without it a real OTP is sent and must be entered.'
+  additional_codes:
+  - code: '0001'
+    behaviour: OTP expired
+  - code: '0002'
+    behaviour: Too many attempts
+  - code: '0003'
+    behaviour: Account not found
+  - code: '0004'
+    behaviour: Server error
+  - code: any other
+    behaviour: Invalid code
+scope_note: Both OTP bypasses are sandbox-only and have no effect in production.
+test_phone_numbers:
+  surface: phoneNumber on POST /v2/user
+  values:
+  - value: '5550173'
+    error_code: AP115
+    triggers: Phone number must be 10 digits (excluding leading +1)
+  - value: '3105550187'
+    error_code: AP115
+    triggers: Missing country code
+  - value: '+65-718-555-0134'
+    error_code: AP119
+    triggers: Country code not allowed
+  - value: '+657185550134'
+    error_code: AP119
+    triggers: Country code not allowed
+  - value: '+14045550124'
+    error_code: AP115
+    triggers: Phone number is not supported
+  - value: '+13125550198'
+    error_code: AP115
+    triggers: Invalid phone number
+  - value: '+19175550163'
+    error_code: AP115
+    triggers: Phone number validation failed
+test_emails:
+  surface: email on POST /v2/user
+  values:
+  - value: no-authenticated-user@aeropay.com
+    error_code: AP101
+    triggers: No Authenticated User
+  - value: unable-to-create-user@aeropay.com
+    error_code: AP102
+    triggers: Unable to create user
+  - value: cannot-extract-user-info@aeropay.com
+    error_code: AP104
+    triggers: Can not extract user information
+  - value: user-already-exists@aeropay.com
+    error_code: AP107
+    triggers: User already exists
+  - value: error-adding-user@aeropay.com
+    error_code: AP108
+    triggers: Error adding user
+exception_scenarios:
+  mechanism: 'Add an `exceptionScenario` string to the POST /v2/transaction request body in sandbox. The
+    transaction runs its real execution path and produces the same output it would if it had hit that
+    error naturally.'
+  decline_scenarios:
+  - exceptionScenario: returnInsufficient
+    produces: R01 insufficient funds decline
+  - exceptionScenario: returnAccount
+    produces: R02 account issue decline
+  - exceptionScenario: returnDispute
+    produces: R07 dispute decline
+  rejection_scenarios:
+  - exceptionScenario: delinquent
+    produces: AP109 delinquent activity on account
+  - exceptionScenario: riskEngine
+    produces: AP307 risk engine rejected the payment
+  - exceptionScenario: balanceInsufficient
+    produces: AP302 insufficient funds
+  side_effects: 'A decline scenario suspends the test user until the payment is resolved. Test payments
+    are resolved from the sandbox merchant portal at https://staging-portal.aeropay.com/login.'
+  timing: 'POST /v2/transaction still returns HTTP 200 with status "pending"; the decline follows a few
+    seconds later and is visible in the merchant portal and on the transaction_declined webhook.'
+test_banks:
+  aerosync: https://dev.aero.inc/docs/aerosync-test-banks
+  aerosync_sandbox: https://dev.aero.inc/docs/aerosync-sandbox-environment
+  note: 'Aeropay publishes dedicated Aerosync test-bank guides for the Aerobank and Aerosync Bank fixtures
+    used to link a bank account in sandbox.'
+webhook_testing:
+  outbound_ips_sandbox:
+  - 3.223.196.167
+  - 34.235.82.59
+  outbound_ips_production:
+  - 54.237.135.163
+  - 54.81.239.48
+  note: Published so an integrator can allowlist Aeropay's delivery origins per environment.
+network_user_scenario:
+  docs: https://dev.aero.inc/docs/testing
+  steps:
+  - Create a test user via POST /v2/user.
+  - Link a bank account using Aerosync.
+  - Delete the user from your own backend database (the Aeropay API has no delete-user operation).
+  - Call POST /v2/user again with the same details; an mfaType is returned and an OTP sent.
+  - Call POST /v2/confirmUser with the OTP to verify the user at your merchant.
+  - Call GET /v2/bankAccounts to fetch the user's existing linked accounts.
+  purpose: Exercises the Aeropay network-user path where a returning user reuses a bank link made at another merchant.
+assessment:
+  strength: 'An unusually complete deterministic test harness for a provider of this size — trigger values
+    for seven phone errors, five user errors, three ACH return codes and three business rejections, plus
+    two OTP bypasses and documented webhook source IPs.'
+  weakness: 'Sandbox access is gated behind an email request and a sales conversation. There is no
+    self-serve signup, no test-key prefix convention and no time simulation, so the whole harness above is
+    unreachable until a human at Aeropay approves the account.'

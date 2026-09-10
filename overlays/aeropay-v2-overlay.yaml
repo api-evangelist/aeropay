@@ -1,0 +1,121 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Aeropay v2 API
+  version: 1.0.0
+extends: openapi/aeropay-v2-openapi.yml
+x-apievangelist:
+  generated: '2026-09-10'
+  method: generated
+  source: 'Enhancements derived from the Aeropay documentation on dev.aero.inc and from the artifacts in
+    this repository. Applies our findings WITHOUT mutating the harvested contract in
+    openapi/_original/aeropay-v2-openapi.json.'
+  note: 'Every action below records something Aeropay states in its own documentation but does not express
+    in the machine-readable contract. Nothing here invents behaviour.'
+actions:
+- target: $.info
+  description: Record the profile, its provenance, and the production server the contract omits.
+  update:
+    x-apievangelist-profile: https://apis.io/provider/aeropay
+    x-apievangelist-harvested-from: https://dash.readme.com/api/v1/api-registry/dsdmfqmtkajkc6
+    x-apievangelist-harvested-on: '2026-09-10'
+    contact:
+      name: Aeropay Support
+      email: support@aeropay.com
+      url: https://dev.aero.inc/docs/getting-started
+- target: $
+  description: 'The published contract lists only the SANDBOX host in servers[]. Aeropay documents the
+    production base as https://api.aeropay.com/v2 in its getting-started guide and in the curl examples on
+    the webhooks page. Adding it, rather than replacing the sandbox entry.'
+  update:
+    servers:
+    - url: https://api.sandbox-pay.aero.inc
+      description: Sandbox. Credentials issued by Aeropay on request.
+      variables: {}
+    - url: https://api.aeropay.com
+      description: Production. Access granted after Aeropay reviews the integration.
+      variables: {}
+- target: $.components.securitySchemes
+  description: 'The contract declares components.securitySchemes as an EMPTY object while 31 of 32
+    operations require an `authorization: Bearer {{token}}` header. Declaring the scheme Aeropay documents
+    at https://dev.aero.inc/docs/token-scopes.'
+  update:
+    AeropayBearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'A transient JWT from POST /v2/token, valid for 30 minutes. The token''s `scope`
+        (merchant or userForMerchant) determines which operations it may call.'
+- target: $.paths['/v2/transaction'].post
+  description: Record the reversal path and window for the primary money-movement create.
+  update:
+    x-agentic-consequence: irreversible-after-window
+    x-reversal:
+      operation: POST /v2/reverseTransaction
+      window: 'Same business day — voided outright before batching; after batching a reverse-direction
+        refund transaction is created and takes 2-3 business days.'
+      partial: true
+    x-idempotency:
+      header: Idempotency-Key
+      optional: true
+      retention: 1 day
+      lookup: GET /v2/transaction/idempotency/{idempotencyKey}
+- target: $.paths['/v2/payoutTransaction'].post
+  description: Payout has no documented reversal.
+  update:
+    x-agentic-consequence: irreversible
+    x-reversal:
+      operation: null
+      note: 'No reversal is documented for a payout. POST /v2/reverseTransaction states its id "is only for
+        AeroTransactions".'
+- target: $.paths['/v2/capturePreauthTransaction'].post
+  description: Capture moves money and carries no idempotency key.
+  update:
+    x-agentic-consequence: irreversible-after-window
+    x-idempotency:
+      supported: false
+      note: 'Unlike the other three money-movement creates, capture declares no Idempotency-Key header. A
+        retried capture has no replay protection.'
+- target: $.paths['/v2/paymentLink'].post
+  description: Sends an SMS or email immediately with no recall.
+  update:
+    x-agentic-consequence: irreversible
+    x-side-effect: Sends an SMS or email to the named recipient on success.
+- target: $.paths['/v2/preauthTransaction'].delete
+  description: The cancel path for an authorization.
+  update:
+    x-reversal-of: POST /v2/preauthTransaction
+    x-window: 'Before capture. AP312/AP313 once the window has closed.'
+- target: $.paths['/v2/user'].post
+  description: Record that user creation cannot be undone through the API.
+  update:
+    x-agentic-consequence: irreversible
+    x-side-effect: Sends an SMS OTP to the supplied phone number.
+    x-no-delete-operation: true
+- target: $.paths['/v2/transactionSearch'].post
+  description: A read operation expressed as a POST.
+  update:
+    x-read-only: true
+    x-pagination:
+      style: page-number
+      request: [page, perPage, sortBy, orderBy]
+      response: paging
+- target: $
+  description: Point at the artifacts that carry what the contract does not express.
+  update:
+    x-apievangelist-artifacts:
+      error_codes: errors/aeropay-error-codes.yml
+      decline_codes: errors/aeropay-decline-codes.yml
+      conventions: conventions/aeropay-conventions.yml
+      authentication: authentication/aeropay-authentication.yml
+      sandbox: sandbox/aeropay-sandbox.yml
+      webhooks: asyncapi/aeropay-webhooks-asyncapi.yml
+      data_model: data-model/aeropay-data-model.yml
+      mcp: mcp/aeropay-mcp.yml
+    x-apievangelist-contract-gaps:
+    - No operationId on any of the 32 operations.
+    - components.securitySchemes is an empty object.
+    - servers[] names only the sandbox host.
+    - No tags[] and no operation-level tags.
+    - No 5xx response declared anywhere.
+    - No 429 response and no rate-limit headers.
+    - Errors are predominantly returned inside an HTTP 200 body.

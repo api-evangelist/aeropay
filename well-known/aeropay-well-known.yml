@@ -1,0 +1,387 @@
+generated: '2026-09-10'
+method: probed
+source: 'Direct HTTP probes of the named /.well-known/ path list plus /apis.json and /apis.yml on every host this
+  record knows: the registrable domain and www, the production and sandbox API hosts, the docs/MCP host, the help
+  centre host and the SDK CDN host.'
+summary:
+  hosts_probed: 8
+  paths_probed_per_host: 14
+  hit_count: 0
+  note: 'No host Aeropay controls serves any document on the probed discovery surface. aeropay.com, www.aeropay.com,
+    help.aeropay.com and dev.aero.inc answer 404 on every path; the Webflow and ReadMe 404 bodies are HTML error
+    pages, which is a miss, not a document. api.aeropay.com, api.sandbox-pay.aero.inc and cdn.sync.aero.inc are
+    AWS API Gateway / CDN origins that answer 403 {"message":"Missing Authentication Token"} for every unmatched
+    route, so no /.well-known/ route is configured on them either. aero.inc resolves (3.33.152.147, 15.197.142.173)
+    but did not complete a TLS connection inside the probe timeout. There is no security.txt, no OAuth or OIDC discovery
+    document, no RFC 9727 api-catalog, no apis.json and no A2A agent card anywhere on the Aeropay estate. Recorded
+    as an honest absence: NO WellKnown, APICatalog, SecurityTxt or AgentCard pointer is emitted in apis.yml, and
+    no a2a/ artifact was written.'
+hosts:
+- host: https://aeropay.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/apis.json
+    status: 404
+    file: null
+  - path: /apis.json
+    status: 404
+    file: null
+  - path: /apis.yml
+    status: 404
+    file: null
+  - path: /.well-known/aauth-resource.json
+    status: 404
+    file: null
+  - path: /.well-known/ucp.json
+    status: 404
+    file: null
+  - path: /.well-known/acp.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+  path_echo_control: passed
+  path_echo_control_status: 404
+- host: https://www.aeropay.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/apis.json
+    status: 404
+    file: null
+  - path: /apis.json
+    status: 404
+    file: null
+  - path: /apis.yml
+    status: 404
+    file: null
+  - path: /.well-known/aauth-resource.json
+    status: 404
+    file: null
+  - path: /.well-known/ucp.json
+    status: 404
+    file: null
+  - path: /.well-known/acp.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+  path_echo_control: passed
+  path_echo_control_status: 404
+- host: https://api.aeropay.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 403
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 403
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 403
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 403
+    file: null
+  - path: /.well-known/api-catalog
+    status: 403
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 403
+    file: null
+  - path: /.well-known/apis.json
+    status: 403
+    file: null
+  - path: /apis.json
+    status: 403
+    file: null
+  - path: /apis.yml
+    status: 403
+    file: null
+  - path: /.well-known/aauth-resource.json
+    status: 403
+    file: null
+  - path: /.well-known/ucp.json
+    status: 403
+    file: null
+  - path: /.well-known/acp.json
+    status: 403
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 403
+    file: null
+  - path: /.well-known/agent.json
+    status: 403
+    file: null
+  path_echo_control: passed
+  path_echo_control_status: 403
+- host: https://api.sandbox-pay.aero.inc
+  documents:
+  - path: /.well-known/security.txt
+    status: 403
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 403
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 403
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 403
+    file: null
+  - path: /.well-known/api-catalog
+    status: 403
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 403
+    file: null
+  - path: /.well-known/apis.json
+    status: 403
+    file: null
+  - path: /apis.json
+    status: 403
+    file: null
+  - path: /apis.yml
+    status: 403
+    file: null
+  - path: /.well-known/aauth-resource.json
+    status: 403
+    file: null
+  - path: /.well-known/ucp.json
+    status: 403
+    file: null
+  - path: /.well-known/acp.json
+    status: 403
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 403
+    file: null
+  - path: /.well-known/agent.json
+    status: 403
+    file: null
+  path_echo_control: passed
+  path_echo_control_status: 403
+- host: https://dev.aero.inc
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/apis.json
+    status: 404
+    file: null
+  - path: /apis.json
+    status: 429
+    file: null
+  - path: /apis.yml
+    status: 429
+    file: null
+  - path: /.well-known/aauth-resource.json
+    status: 404
+    file: null
+  - path: /.well-known/ucp.json
+    status: 404
+    file: null
+  - path: /.well-known/acp.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+  path_echo_control: passed
+  path_echo_control_status: 404
+- host: https://aero.inc
+  documents:
+  - path: /.well-known/security.txt
+    status: 0
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 0
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 0
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 0
+    file: null
+  - path: /.well-known/api-catalog
+    status: 0
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 0
+    file: null
+  - path: /.well-known/apis.json
+    status: 0
+    file: null
+  - path: /apis.json
+    status: 0
+    file: null
+  - path: /apis.yml
+    status: 0
+    file: null
+  - path: /.well-known/aauth-resource.json
+    status: 0
+    file: null
+  - path: /.well-known/ucp.json
+    status: 0
+    file: null
+  - path: /.well-known/acp.json
+    status: 0
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 0
+    file: null
+  - path: /.well-known/agent.json
+    status: 0
+    file: null
+  path_echo_control: passed
+  path_echo_control_status: 0
+- host: https://help.aeropay.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/apis.json
+    status: 404
+    file: null
+  - path: /apis.json
+    status: 404
+    file: null
+  - path: /apis.yml
+    status: 404
+    file: null
+  - path: /.well-known/aauth-resource.json
+    status: 404
+    file: null
+  - path: /.well-known/ucp.json
+    status: 404
+    file: null
+  - path: /.well-known/acp.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+  path_echo_control: passed
+  path_echo_control_status: 404
+- host: https://cdn.sync.aero.inc
+  documents:
+  - path: /.well-known/security.txt
+    status: 403
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 403
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 403
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 403
+    file: null
+  - path: /.well-known/api-catalog
+    status: 403
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 403
+    file: null
+  - path: /.well-known/apis.json
+    status: 403
+    file: null
+  - path: /apis.json
+    status: 403
+    file: null
+  - path: /apis.yml
+    status: 403
+    file: null
+  - path: /.well-known/aauth-resource.json
+    status: 403
+    file: null
+  - path: /.well-known/ucp.json
+    status: 403
+    file: null
+  - path: /.well-known/acp.json
+    status: 403
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 403
+    file: null
+  - path: /.well-known/agent.json
+    status: 403
+    file: null
+  path_echo_control: passed
+  path_echo_control_status: 403

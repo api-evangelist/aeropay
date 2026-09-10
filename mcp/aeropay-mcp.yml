@@ -1,0 +1,65 @@
+generated: '2026-09-10'
+method: probed
+status: published
+source: https://dev.aero.inc/docs/mcp
+deployment:
+  mode: remote
+  endpoint: https://dev.aero.inc/mcp
+  auth: none
+  auth_note: 'tools/list answers anonymously. The execute-request tool calls the live Aeropay API, so the
+    caller supplies their own Aeropay bearer token as a header on the HAR request; the MCP server itself
+    holds no Aeropay credential. Aeropay documents this as "If your APIs require authentication, you can
+    pass in headers via query parameters or however headers are configured in your MCP client."'
+  verified: probed
+server:
+  name: api-aeropay
+  transport: http
+  url: https://dev.aero.inc/mcp
+  docs: https://dev.aero.inc/docs/mcp
+  clients_documented:
+  - Cursor
+  - Windsurf
+  - Claude Desktop
+  implementation: 'Spec-driven MCP server generated from the Aeropay v2 OpenAPI document by the ReadMe
+    documentation platform that hosts dev.aero.inc. The tools are generic OpenAPI navigators, not one
+    tool per Aeropay operation.'
+tools:
+- name: list-endpoints
+  title: List API Endpoints
+  description: Lists all API paths and their HTTP methods with summaries, organized by path. Results can
+    be passed directly into 'get-endpoint'.
+  input_required: []
+  read_only: true
+- name: get-endpoint
+  title: Get Endpoint Details
+  description: Gets detailed information about a specific API endpoint, including security schemes and
+    servers.
+  input_required:
+  - path
+  - method
+  read_only: true
+- name: search-endpoints
+  title: Search API Endpoints
+  description: Performs a deep search through paths, operations, and parameters to discover relevant API
+    endpoints.
+  input_required:
+  - pattern
+  read_only: true
+- name: execute-request
+  title: Execute API Request
+  description: Executes an API request with a given HAR request object.
+  input_required:
+  - harRequest
+  read_only: false
+  note: 'This is the only write-capable tool and it is a generic HTTP executor — it can issue any Aeropay
+    v2 call, including POST /v2/transaction and POST /v2/payoutTransaction, when given a token. Treat it
+    as an unscoped money-movement surface.'
+raw_tools_list: mcp/aeropay-mcp-tools.json
+x-evidence:
+  fetched: '2026-09-10'
+  url: https://dev.aero.inc/mcp
+  method: 'POST {"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+  http_status: 200
+  content_type: text/event-stream
+  tool_count: 4
+  gated: false

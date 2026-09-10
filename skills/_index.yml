@@ -1,0 +1,49 @@
+generated: '2026-09-10'
+method: generated
+source: 'Authored from the Aeropay v2 OpenAPI (openapi/aeropay-v2-openapi.yml) and the implementation
+  guides at https://dev.aero.inc/docs/api-overview, mirroring the four transaction tutorials Aeropay
+  publishes. Aeropay ships no AGENTS.md and no provider-published skills; searched first, none found.'
+api: Aeropay v2 API
+grounding: 'Every operation named in every skill is addressed by METHOD + PATH and appears in the published
+  contract. The contract declares NO operationId on any of its 32 operations, so no operationId is quoted —
+  none exists to quote.'
+skills:
+- name: aeropay-standard-transaction
+  file: aeropay-standard-transaction.md
+  description: Take a payment from a consumer bank account to a merchant, end to end.
+  operations: 8
+  flow: https://dev.aero.inc/docs/standard-transaction-overview
+- name: aeropay-preauthorized-transaction
+  file: aeropay-preauthorized-transaction.md
+  description: Authorize now and capture later, with the adjust and cancel windows.
+  operations: 7
+  flow: https://dev.aero.inc/docs/preauth-transaction-overview
+- name: aeropay-payout-and-refund
+  file: aeropay-payout-and-refund.md
+  description: Move money back to a user — a payout, or a reversal of a prior debit — and know which is undoable.
+  operations: 5
+  flow: https://dev.aero.inc/docs/payout-transaction-overview
+- name: aeropay-webhooks-and-reconciliation
+  file: aeropay-webhooks-and-reconciliation.md
+  description: Subscribe to the nine webhook topics, handle deliveries, and reconcile with the report operations.
+  operations: 9
+  flow: https://dev.aero.inc/docs/webhooks-1
+cross_cutting_rules_every_skill_carries:
+- 'Aeropay returns most errors inside an HTTP 200. Parse the body; never branch on the status code alone.'
+- 'Bearer tokens expire after 30 minutes and there is no refresh flow.'
+- 'Two token scopes — merchant and userForMerchant — and each operation requires one specific scope.'
+- 'Idempotency-Key is optional and covers only 4 of 16 mutating operations. POST /v2/capturePreauthTransaction
+  moves money and is NOT one of them.'
+- 'Amounts are integer minor units. 500 is $5.00.'
+- 'US bank accounts only.'
+not_covered:
+  - flow: Request for Payment (RfP)
+    reason: 'Aeropay publishes an RfP guide at https://dev.aero.inc/docs/request-for-payment-transaction
+      but the RfP-specific behaviour is not expressed as distinct operations in the contract — it is a rail
+      selector on the same transaction operations. Not skilled separately rather than inventing a surface.'
+  - flow: Bank account migration
+    reason: 'The three-step migration flow (https://dev.aero.inc/docs/bank-account-migration) uses
+      operations that do not appear in the published OpenAPI. Not skilled, because it cannot be grounded.'
+  - flow: Subscriptions
+    reason: 'https://dev.aero.inc/docs/subscriptions describes a subscription product built on preauth and
+      standard transactions; it introduces no new operations in the contract.'

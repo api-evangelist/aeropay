@@ -1,0 +1,258 @@
+generated: '2026-09-10'
+method: derived
+source: openapi/aeropay-v2-openapi.yml
+source_additional:
+- https://dev.aero.inc/docs/transaction-status
+- https://dev.aero.inc/docs/webhooks-1
+- https://dev.aero.inc/docs/user-flows
+note: 'Derived from the 25 component schemas and the id-reference fields carried on transaction, user and
+  bank-account objects. The contract wraps almost every response in a single-key envelope (transactionResponse
+  -> transaction, userGetResponse -> user), so the entities below are the INNER objects, not the wrappers.
+  Aeropay publishes no object reference page and no id-prefix scheme.'
+identifier_scheme:
+  prefixes: false
+  note: 'No type prefix on any identifier. User and Transaction use UUID v4; Merchant, Location and
+    UserAccount (the linked bank account) use plain integers. A bare integer 582 on a webhook payload is a
+    merchantId only because of the field name.'
+  types:
+    User: uuid
+    Transaction: uuid
+    PreauthTransaction: uuid
+    Reversal: uuid
+    Merchant: integer
+    Location: integer
+    UserAccount: integer
+    BankAccount: integer
+entities:
+- name: Merchant
+  id: merchantId
+  id_type: integer
+  description: 'The Aeropay-side organisation an integrator authenticates as. Never created through the
+    API — it is provisioned by Aeropay during onboarding. It is the root of the ownership graph.'
+  schemas: []
+  note: 'There is no merchant resource in the contract. Merchant exists only as a foreign key
+    (merchantId) and as the subject of merchant-scoped tokens, reports, reputation and tip configuration.'
+- name: Location
+  id: locationId
+  id_type: integer
+  description: A physical or logical location belonging to a merchant. Referenced on transactions and payment links.
+  note: 'No location resource is exposed. Errors AP203, AP204 and AP208 show locations are looked up and
+    validated server-side; the integrator cannot list or manage them through the API.'
+- name: User
+  id: id
+  id_type: uuid
+  description: 'A consumer created by and associated with a merchant. Created by POST /v2/user, verified by
+    POST /v2/confirmUser with an SMS MFA code, read by GET /v2/user.'
+  schemas:
+  - userRequest
+  - userObject
+  - userGetResponse
+  - confirmUserObject
+  fields:
+  - firstName
+  - lastName
+  - phoneNumber
+  - email
+  - type
+  - createdDate
+  - aeroPassUserUuid
+  note: 'aeroPassUserUuid is the NETWORK-level identifier — the handle that lets a user reuse a bank link
+    made at a different merchant, and the value the Aerosync v2 SDKs require. It is a second identity key
+    alongside the per-merchant user id.'
+  no_delete: The API publishes no delete-user operation.
+- name: BankAccount
+  id: userAccountId / bankAccountId
+  id_type: integer
+  description: 'A bank account a user has linked through the Aerosync aggregator widget. Created indirectly:
+    GET /v2/aggregatorCredentials mints a widget URL and token, the user completes their bank''s flow, and
+    POST /v2/linkAccountFromAggregator attaches the resulting connectionId.'
+  schemas:
+  - aggregatorCredentialsResponse
+  - linkAccountFromAggregatorResponse
+  fields:
+  - connectionId
+  - userBankInfo
+  note: 'A user may hold several accounts (GET /v2/bankAccounts) with one marked default via
+    PATCH /v2/userBankAccount/{bankAccountId}. A count ceiling exists (AP414) but is not published.'
+- name: Transaction
+  id: id
+  id_type: uuid
+  description: 'The core money-movement object. One shape serves debits, payouts and reversals, discriminated
+    by paymentType.'
+  schemas:
+  - transactionResponse
+  - transactionGetResponse
+  - transactionSearchResponse
+  fields:
+  - id
+  - amount
+  - status
+  - paymentType
+  - userId
+  - merchantId
+  - locationId
+  - userAccountId
+  - referenceId
+  - title
+  - apFee
+  - isRtp
+  - createdDate
+  - returnCode
+  - merchantUserReputation
+  - attributes
+  statuses:
+  - pending
+  - processed
+  - void
+  - resolved
+  - declined
+  payment_types:
+  - payment
+  - payment+
+  - payout
+  - reversal
+- name: PreauthTransaction
+  id: id
+  id_type: uuid
+  description: An authorization held against a user for capture later, with an amount that may be decreased or increased up to the original.
+  schemas:
+  - preauthTransactionResponse
+  - preauthTransactionGetResponse
+  - capturePreauthTransactionResponse
+  note: Capture produces a normal Transaction.
+- name: Reversal
+  id: id
+  id_type: uuid
+  description: 'A void or refund of a prior transaction. Two states — a processed reversal (a real reverse-direction
+    transaction) and a queued reversal (requested but not yet processed, because the original has not cleared).'
+  schemas:
+  - transactionRefundsResponse
+  - refundItem
+  - queuedRefundItem
+  - reverseTransactionResponse
+  fields:
+  - id
+  - referenceId
+  - amount
+  - status
+  statuses:
+  - queued
+  - abandoned
+  note: 'The uuid assigned when POST /v2/reverseTransaction is called becomes the id of the resulting
+    reversal transaction once processed — the queued id and the processed id are the SAME value. A transaction
+    may carry multiple independent reversals.'
+- name: Webhook
+  id: webhook id
+  description: A merchant-level subscription binding one topic to one callback URL.
+  schemas:
+  - webhookPostResponse
+  - webhookGetResponse
+  - webhookDeleteResponse
+  fields:
+  - topic
+  - url
+  note: Nine topics; see asyncapi/aeropay-webhooks-asyncapi.yml.
+- name: MerchantReputation
+  id: composite (merchantId + userId)
+  description: A merchant-assigned trust level for one of its users, driving the Trusted User Program.
+  schemas:
+  - merchantReputationStatusPostResponse
+  fields:
+  - userId
+  - reputation
+  - dateModified
+  values:
+  - standard
+  - vip
+  - blocked
+  note: 'Surfaces on transaction webhook payloads as merchantUserReputation when payloadVersion is 2.0.'
+- name: TipConfiguration
+  id: derived from the merchant-scoped token
+  description: 'Read-only tip settings for the authenticated merchant, managed in the Aeropay merchant portal.'
+  schemas:
+  - tipConfigurationResponse
+  fields:
+  - enabled
+  - options
+  - defaultValue
+  - customTipEnabled
+  note: 'Two response shapes discriminated by `enabled`. When tipping is off, options/defaultValue/customTipEnabled
+    are OMITTED rather than returned empty. Each option is discriminated by `type`: percentage (value is a
+    number, 15 means 15%) or flat (value is a money object in integer cents).'
+- name: TransactionTotals
+  id: none
+  description: An aggregate report over a merchant's transactions for a time range.
+  schemas:
+  - transactionTotals
+  fields:
+  - chargeTotal
+  - tipTotal
+  - feeTotal
+  - rewardsTotal
+  - payoutsTotal
+  - refundsTotal
+  - netTotal
+  - returns
+relationships:
+- from: Merchant
+  to: Location
+  type: has_many
+  via: locationId
+- from: Merchant
+  to: User
+  type: has_many
+  via: merchantId
+  note: A user belongs to the merchant that created it, but may also exist network-wide via aeroPassUserUuid.
+- from: User
+  to: BankAccount
+  type: has_many
+  via: userAccountId
+- from: User
+  to: Transaction
+  type: has_many
+  via: userId
+- from: Merchant
+  to: Transaction
+  type: has_many
+  via: merchantId
+- from: Transaction
+  to: Location
+  type: belongs_to
+  via: locationId
+- from: Transaction
+  to: BankAccount
+  type: belongs_to
+  via: userAccountId
+- from: Transaction
+  to: Reversal
+  type: has_many
+  via: transactionUUID
+  note: 'GET /v2/transaction/{transactionUUID}/refunds returns both refunds[] and queuedRefunds[].'
+- from: PreauthTransaction
+  to: Transaction
+  type: has_one
+  via: capture
+  note: POST /v2/capturePreauthTransaction converts the authorization into a transaction.
+- from: Merchant
+  to: Webhook
+  type: has_many
+  via: merchantId
+- from: Merchant
+  to: MerchantReputation
+  type: has_many
+  via: merchantId
+- from: User
+  to: MerchantReputation
+  type: has_one
+  via: userId
+- from: Merchant
+  to: TipConfiguration
+  type: has_one
+  via: merchant-scoped token
+  note: Aeropay states tipping is configured at merchant level and cannot be configured per location.
+coverage:
+  schemas_in_contract: 25
+  entities_modelled: 11
+  envelope_schemas_excluded: 8
+  note: 'Merchant and Location are inferred entities — they have no schema and no operations, but every
+    transaction, report and token depends on them. Modelling them is the only way the graph closes.'

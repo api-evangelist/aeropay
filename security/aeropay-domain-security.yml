@@ -1,0 +1,33 @@
+generated: '2026-09-10'
+method: probed
+source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
+hosts:
+- host: www.aeropay.com
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Nov 19 05:42:25 2026 GMT
+  hsts: true
+  hsts_max_age: 31536000
+- host: dev.aero.inc
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Oct 31 04:13:17 2026 GMT
+  hsts: true
+  hsts_max_age: 31536000
+- host: api.aeropay.com
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Mar  1 23:59:59 2027 GMT
+  hsts: null
+domains:
+- domain: aeropay.com
+  dnssec: false
+  caa: []
+  spf: false
+  dmarc: true
+  dmarc_policy: reject
+- domain: aero.inc
+  dnssec: false
+  caa: []
+  spf: false
+  dmarc: false

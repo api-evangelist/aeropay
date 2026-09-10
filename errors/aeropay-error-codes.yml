@@ -1,0 +1,636 @@
+generated: '2026-09-10'
+method: searched
+source: https://dev.aero.inc/docs/error-handling
+format: custom
+envelope: '{"error": {"code": "APnnn", "message": "...", "help": "contact support@aeropay.com for help"}}'
+alternate_envelope: '{"success": false, "code": "APnnn", "error": "..."}'
+http_semantics: 'Aeropay opens its own glossary with "NOTE: All Aeropay errors return with an HTTP 200 response."
+  The per-operation error glossaries in the API reference do assign an HTTP status to each code, and the majority
+  of the AP1XX-AP5XX business codes are marked 200 there while the AP00X authentication codes and the parameter
+  codes AP700/AP701 are marked 401 and 400. An integrator MUST parse the body; branching on the HTTP status alone
+  will read a declined payment, an insufficient-funds rejection and a suspended user as successes.'
+code_prefix: AP
+summary:
+  code_count: 109
+  group_count: 10
+  groups:
+  - group: Authentication & General Errors (AP00X)
+    count: 12
+  - group: Users & Merchants (AP1XX & AP2XX)
+    count: 28
+  - group: Transactions (AP3XX)
+    count: 18
+  - group: Bank Linking (AP4XX & AP5XX)
+    count: 23
+  - group: General/Other Errors (AP700, AP701, AP800, AP900)
+    count: 4
+  - group: Internal Errors (AP10XX)
+    count: 3
+  - group: Webhooks (AP11XX)
+    count: 8
+  - group: Merchant Bill Error (AP12XX)
+    count: 4
+  - group: Refunds (AP13XX)
+    count: 6
+  - group: Idempotency (AP14XX)
+    count: 3
+  per_operation_glossaries: Every operation in the API reference carries its own collapsible Error Glossary listing
+    the subset of codes it can return with their HTTP status. That per-operation mapping is published on the reference
+    pages and is mirrored into llms/aeropay-llms.txt.
+related:
+  decline_codes: errors/aeropay-decline-codes.yml
+  contract_derived: errors/aeropay-problem-types.yml
+  sandbox_triggers: sandbox/aeropay-sandbox.yml
+codes:
+- code: AP001
+  group: Authentication & General Errors (AP00X)
+  meaning: Invalid API Keys or API keys were not provided.
+  resolution: Double check API Key/secret and other params
+  message: API key and secret key required
+- code: AP002
+  group: Authentication & General Errors (AP00X)
+  meaning: Invalid API credentials
+  resolution: Double check your API key and secret, and confirm you are using the correct environment (sandbox vs.
+    production)
+  message: Invalid API key or secret key
+- code: AP002
+  group: Authentication & General Errors (AP00X)
+  meaning: User ID does not exist or has not been associated with this merchant
+  resolution: Confirm the `userId` is correct and that you have called `POST /v2/confirmUser` to associate the user
+    with your merchant
+  message: User ID doesn't exist or hasn't been associated with this merchant.
+- code: AP003
+  group: Authentication & General Errors (AP00X)
+  meaning: Your merchant account is locked.
+  resolution: Please reach out to the Aeropay team.
+  message: Account locked
+- code: AP004
+  group: Authentication & General Errors (AP00X)
+  meaning: Missing token.
+  resolution: Include the authorization token in your header of your request.
+  message: Missing authorization header token
+- code: AP005
+  group: Authentication & General Errors (AP00X)
+  meaning: Client session is invalid.
+  resolution: Refresh your session.
+  message: Session does not match client.
+- code: AP006
+  group: Authentication & General Errors (AP00X)
+  meaning: Unauthorized user
+  resolution: Check the token of your call to ensure you're using the correct scope.
+  message: Client is not authorized for this scope.
+- code: AP007
+  group: Authentication & General Errors (AP00X)
+  meaning: Token has expired.
+  resolution: Retrieve a new token.
+  message: Token has expired
+- code: AP008
+  group: Authentication & General Errors (AP00X)
+  meaning: Invalid token.
+  resolution: Retrieve a new token.
+  message: Invalid token
+- code: AP009
+  group: Authentication & General Errors (AP00X)
+  meaning: MerchantUser not authorized for merchantId.
+  resolution: Check the API URL and token to ensure you're in the correct scope.
+  message: Unauthorized
+- code: AP010
+  group: Authentication & General Errors (AP00X)
+  meaning: MerchantUser not authorized for call.
+  resolution: Check the API URL and token to ensure you're in the correct scope.
+  message: Unauthorized
+- code: AP011
+  group: Authentication & General Errors (AP00X)
+  meaning: MerchantUser not authorized for transaction.
+  resolution: Check the API URL and token to ensure you're in the correct scope.
+  message: Unauthorized
+- code: AP101
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Invalid or missing authentication token
+  resolution: Double check correct token and token scope is being used, and that 'authenticationToken' is provided
+    in headers of call
+  message: No Authenticated User
+- code: AP102
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Error creating user in the database
+  resolution: Check that the user information is correct, or retry at a later date.
+  message: Unable to create user.
+- code: AP103
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Issue with user reputation
+  resolution: There is an issue setting the user's reputation. Reach out to Aeropay support.
+  message: Unable to set user reputation level for user {user}
+- code: AP104
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: User information not provided during user creation
+  resolution: Ensure all necessary information is provided on user profile.
+  message: Can not extract user information.
+- code: AP105
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Area code missing
+  resolution: Provide area code for phone number
+  message: Phone number {phone\_number} missing area code.
+- code: AP106
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Improper phone number format
+  resolution: Ensure phone number is properly formatted
+  message: Phone number {phone\_number} is improperly formatted.
+- code: AP107
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: User already exists
+  resolution: User already exists for the provided account information. You may need to verify the user or fetch
+    their information.
+  message: User already exists
+- code: AP108
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Cannot create user
+  resolution: Error creating a new user. Reach out to Aeropay support.
+  message: Error adding user
+- code: AP109
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: User is suspended from global reputation
+  resolution: The user should email <support@aeropay.com> to confirm a resolution to enable their account.
+  message: We've detected delinquent activity on your account. Reach out to <support@aeropay.com>  to reactivate
+    your account.
+- code: AP110
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: User is missing required info to transact
+  resolution: Verify user has valid first and last names, email and phone number
+  message: Your profile is incomplete. Please contact <support@aeropay.com>  to finish setting up before completing
+    this transaction.
+- code: AP111
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Invalid MFA code
+  resolution: Provided user verification code is incorrect, prompt user to enter correct code.
+  message: Invalid verification code
+- code: AP112
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Failed MFA too many times
+  resolution: Failed user verification too many times. User will have to retry later.
+  message: Max attempts exceeded
+- code: AP113
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: User does not exist
+  resolution: This user does not exist. Ensure you have the correct userId.
+  message: User does not exist
+- code: AP114
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: User is blocked from transacting at this merchant
+  resolution: Direct the user to contact the merchant to reactivate their account.
+  message: Your account has been restricted. The activity on the account may have violated the merchant's community
+    standards. Please contact the merchant to reactivate your account.
+- code: AP115
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Phone number invalid
+  resolution: Ensure the phone number being used is a valid US mobile number in ISO format (+1XXXXXXXXXX). Landlines,
+    VOIPs, or prepaid numbers are invalid.
+  message: The phone number you entered is not supported. Please enter a valid mobile number or contact <support@aeropay.com>
+    to continue.
+- code: AP116
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Cannot update user's reputation with this merchant
+  resolution: This user is ineligible for the requested reputation status update. Contact Aeropay support for an
+    override.
+  message: This user is ineligible for this status update due to historical declines. To override, contact <support@aeropay.com>
+- code: AP118
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: User cannot be created with numbers or special characters in name
+  resolution: Ensure the user's first and last name fields contain only alphabetical characters.
+  message: User cannot be created with numbers or special characters
+- code: AP119
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: User registration attempted with an unsupported country phone code
+  resolution: Ensure the phone number uses a valid US country code (+1).
+  message: The country code you entered is not supported at this time. Please enter a valid US mobile number.
+- code: AP201
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Unable to fetch merchant
+  resolution: This merchant does not exist. Ensure you have the correct merchantId.
+  message: No merchant exists for username {merchant\_id}
+- code: AP202
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Unable to fetch merchant
+  resolution: This merchant does not exist. Ensure you have the correct merchantId.
+  message: No merchant user exists for merchant user id {user\_id}.
+- code: AP203
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Unable to fetch location
+  resolution: This locationid may not exist. Ensure you have the correct locationid.
+  message: Unable to get location for merchant id {merchant\_id}.
+- code: AP204
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Location not for merchant
+  resolution: This locationid does not exist for your merchant. Ensure you have the correct locationid.
+  message: Location \{\{location}} not for merchant.
+- code: AP205
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Unable to get rewards and fees
+  resolution: Failed to get rewards and fees. Reach out to Aeropay
+  message: Unable to get rewards and fees for merchant {merchant}.
+- code: AP206
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Unable to get merchant
+  resolution: Failed to get merchant. Reach out to Aeropay.
+  message: Unable to get merchant account for id {account\_id}.
+- code: AP207
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Unable to find merchant
+  resolution: Unable to find a merchant by id. Ensure you have the correct merchantId.
+  message: No Merchant found for id {merchant}.
+- code: AP208
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Unable to find merchant by uuid
+  resolution: Unable to find merchant by uuid. Ensure you have the correct location uuid.
+  message: Failed to fetch location for uuid {uuid}.
+- code: AP209
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Location and merchant do not match
+  resolution: Location uuid and merchantId do not match. Ensure you have the correct merchantId and location uuid.
+  message: Location uuid {uuid} does not match the merchant {merchant}.
+- code: AP210
+  group: Users & Merchants (AP1XX & AP2XX)
+  meaning: Merchant not verified
+  resolution: Your merchant account is not verified. Contact Aeropay compliance for more details.
+  message: This merchant is not activated, please contact <support@aeropay.com>  for more information.
+- code: AP300
+  group: Transactions (AP3XX)
+  meaning: Bank Connection Error
+  resolution: The balance refresh of this user’s account failed and is usually caused by the user resetting their
+    banking password or security settings within online banking. Balances will also become stale within 6-12 months.
+    This is called a UAR (User-Action Required) error where the user must reconnect their account or contact Aeropay
+    where we will assess if we can override their balance check.
+  message: We are having issues connecting to your bank. Try reconnecting your bank or reach out to support@aeropay.com
+    to resolve the issue."\
+- code: AP301
+  group: Transactions (AP3XX)
+  meaning: User is suspended from merchant reputation.
+  resolution: This user has been suspended by your team. Review the user's activity to consider enabling them. If
+    they are blocked by global reputation, have the user email support@aeropay.com to resolve.
+  message: User {username} is blocked.
+- code: AP302
+  group: Transactions (AP3XX)
+  meaning: Insufficient Funds
+  resolution: The user’s current balance does not meet the transaction amount. Pending transactions in the user’s
+    account may be impacting the total available balance. The user must deposit additional funds into their connected
+    account. (This may take 1-2 business days to be reflected)
+  message: We could not approve your payment. Your available balance might be insufficient for this transaction.
+    Please add more funds to your account or contact support@aeropay.com for more information."\
+- code: AP303
+  group: Transactions (AP3XX)
+  meaning: Transaction Missing Location
+  resolution: The transaction request is missing the location code required to complete the payment. Please reach
+    out to Aeropay for assistance.
+  message: Transaction missing location.
+- code: AP304
+  group: Transactions (AP3XX)
+  meaning: Amount exceeds maximum limit for merchant
+  resolution: The requested transaction amount exceeds the daily limit on your merchant account. Please reach out
+    to Aeropay for assistance.
+  message: '''Transaction amount {amount} exceeds limit.'''
+- code: AP305
+  group: Transactions (AP3XX)
+  meaning: User is suspended from global reputation
+  resolution: 'Specific to /payoutTransaction: The user should email support@aeropay.com to confirm a resolution
+    to enable their account.'
+  message: We've detected delinquent activity on your account. Reach out to support@aeropay.com to reactivate your
+    account."\
+- code: AP306
+  group: Transactions (AP3XX)
+  meaning: Balance does not meet requirement
+  resolution: The user's available bank account balance is insufficient to cover the transaction. The user must
+    deposit additional funds into their connected account. (This may take 1-2 business days to be reflected)
+  message: \_"We could not approve your payment. Your available balance might be insufficient for this transaction.
+    Please add more funds to your bank account or contact support@aeropay.com for more information".\
+- code: AP307
+  group: Transactions (AP3XX)
+  meaning: Transaction Not Approved
+  resolution: Aeropay’s machine learning model did not approve the transaction after assessing its likelihood to
+    decline. The user may contact the Aeropay Team for a possible override at support@aeropay.com
+  message: We could not approve your payment. Please try a lower amount or contact your financial institution
+- code: AP308
+  group: Transactions (AP3XX)
+  meaning: Invalid amount
+  resolution: The amount submitted for the transaction does not match a standard monetary format. Please retry the
+    amount with a limit of two decimal places.
+  message: '''Invalid amount: {reason}'''
+- code: AP309
+  group: Transactions (AP3XX)
+  meaning: Business user required for invoice
+  resolution: A business user type is required when creating an invoice. Ensure the user is registered as a business
+    user.
+  message: A business user is required for creating an invoice.
+- code: AP310
+  group: Transactions (AP3XX)
+  meaning: Credit transaction was declined
+  resolution: The transaction request was malformed. Please reach out to Aeropay for assistance.
+  message: We're sorry, your transaction request has been declined.
+- code: AP311
+  group: Transactions (AP3XX)
+  meaning: Bank Account attempted to be removed while it still has pending payments
+  resolution: A user's active bank account cannot be removed until pending payments are resolved. Please wait until
+    the user's pending payments are completed before removing the account or contact Aeropay for more information.
+  message: Bank Account has pending payments.
+- code: AP312
+  group: Transactions (AP3XX)
+  meaning: Preauth already captured
+  resolution: 'Specific to\*\*/preauthTransaction\*\*: this preauthorized transaction has already been captured.'
+  message: 'Preauth has already been captured by Transaction #{transaction}.'
+- code: AP313
+  group: Transactions (AP3XX)
+  meaning: Preauth capture ineligible
+  resolution: The preauth transaction is not eligible for capture. Please contact Aeropay for more information.
+    This error is common when trying to capture canceled preauth transactions.
+  message: Preauthorized Transaction with status of {status} not eligible for capture.
+- code: AP314
+  group: Transactions (AP3XX)
+  meaning: Transaction uuid already exists
+  resolution: The transaction UUID is already in use. Please provide unique transaction uuids that follow standard
+    UUID formating. Also raised by POST /v2/reverseTransaction when the optional uuid field collides with an existing
+    reversal's uuid.
+  message: Transaction with uuid of {uuid} already exists
+- code: AP315
+  group: Transactions (AP3XX)
+  meaning: Guardrail reject
+  resolution: This transaction was rejected by Aeropay's guardrails. Please contact Aeropay for more information.
+  message: We could not approve your payment. You've reached the permitted threshold or are using a bank that is
+    suspended. Adjust your payment, bank account, or try again later.
+- code: AP316
+  group: Transactions (AP3XX)
+  meaning: Transaction not found
+  resolution: A transaction with this ID couldn't be found. Verify you're using a valid transaction ID for this
+    request.
+  message: Transaction not found
+- code: AP317
+  group: Transactions (AP3XX)
+  meaning: Repeated transaction failures were recorded for this user within a short window, triggering a temporary
+    security/AML throttle.
+  resolution: Review the user's recent transaction history for repeated failures. The restriction will automatically
+    expire as failed attempts age out of the configured window. No manual action is typically required. If assistance
+    is needed, direct the user to Aeropay Support.
+  message: Too many failed attempts. Please wait a few minutes and try again. If the problem continues, please contact
+    support.
+- code: AP400
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: User has no banks connected and cannot transact
+  resolution: Connect a bank account for user
+  message: Connect your bank account to initiate a transaction.
+- code: AP401
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Bank account id does not belong to user attempting to transact
+  resolution: Provide valid bankAccountId or remove bankAccountId param and transaction will use user's default
+    bank account
+  message: We cannot validate the account you're attempting to connect. Please connect a valid account.
+- code: AP402
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Merchant bank account invalid
+  resolution: Your merchant account may not have a valid bank account. Reach out to your Aeropay representative.
+  message: No bank account for merchant id {merchant}.
+- code: AP403
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Blocked routing number
+  resolution: The users's bank account has been disabled for security purposes. Try again later.
+  message: Sorry, your bank is not supported at this time. Please connect to a different account. Questions? Contact<support@aeropay.com>
+    .
+- code: AP404
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Routing number provided does not pass validation
+  resolution: Confirm valid routing number.
+  message: We could not validate your routing number.
+- code: AP405
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Error adding bank
+  resolution: Confirm valid bank account for user. There may be an issue with bank linking at this time.
+  message: Error adding user bank account.
+- code: AP406
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Account number provided does not pass validation
+  resolution: Confirm valid account number.
+  message: Invalid account number
+- code: AP407
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: User flagged as malicious and has been blocked from bank linking
+  resolution: The user may contact the Aeropay Team for a possible override at <support@aeropay.com>
+  message: Bank linking has been disabled on your account. Please contact<support@aeropay.com> to resolve.
+- code: AP408
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Invalid aggregator
+  resolution: Provide a supported aggregator
+  message: Unknown Aggregator {aggregator}
+- code: AP409
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Invalid redirectURI
+  resolution: Provide a valid redirectURI
+  message: redirectURI invalid.
+- code: AP410
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Bank Account Already in Use
+  resolution: The attempted bank account is already connected to another user, possibly due to a duplicate account.
+  message: This account is already connected to another user. Please share the last four digits with <support@aeropay.com>
+    to investigate.
+- code: AP411
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Invalid account type
+  resolution: User may have connected a non-checking account. Ensure checking account is linked.
+  message: Invalid account connected for processing payments. Please connect a checking account.
+- code: AP412
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Bank account has been removed from users account
+  resolution: Provide valid bankAccountId or remove bankAccountId param and transaction will use user's default
+    bank account
+  message: This account has already been removed..
+- code: AP413
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Bank account does not belong to merchant
+  resolution: Merchant bank account may not be valid. Reach out to Aeropay representative.
+  message: Bank account {account} does not belong to merchant {merchant}.
+- code: AP414
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Bank linking limit reached
+  resolution: User has already linked 5 unique accounts.
+  message: Sorry, you've linked the maximum number of accounts to your Aeropay profile. Please reach out to<support@aeropay.com>  if
+    you have any questions.
+- code: AP415
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Bank linking limit reached
+  resolution: User has already linked this routing + accounting combination 5 times before.
+  message: Sorry, you've already linked this bank account before. Please reach out to<support@aeropay.com>  if you
+    have any questions.
+- code: AP500
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Outstanding micro deposit
+  resolution: Confirm micro deposit before linking bank.
+  message: Outstanding manual bank link for account ending in {last 4}.
+- code: AP501
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Microdeposit failed
+  resolution: Unable to create microdeposit. Try again later or reach out to support.
+  message: Unable to create micro deposit for account ending in {last 4}.
+- code: AP502
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Microdeposit failed
+  resolution: Unable to fetch microdeposit. Try again later or reach out to support.
+  message: Unable to get micro deposit.
+- code: AP503
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Microdeposit failed
+  resolution: Exceeded max number of allowed micro deposit failures.
+  message: Exceeded maximum number of attempts for account ending in {last 4}.
+- code: AP504
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Incorrect microdeposit amounts
+  resolution: Provide correct micro deposit amounts.
+  message: At least one of these amounts is incorrect. Please ensure you are entering two different amounts exactly
+    as they appear in your account.
+- code: AP505
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Microdeposit batch failure
+  resolution: Aeropay is unable to batch the microdeposits. Try another bank or reach out to support.
+  message: '''Unable to batch microdeposits.'
+- code: AP506
+  group: Bank Linking (AP4XX & AP5XX)
+  meaning: Failed to set filename for microdeposit batch
+  resolution: Aeropay is unable to set the batch file name. Try another bank or reach out to support.
+  message: Unable to set name of batch files.
+- code: AP700
+  group: General/Other Errors (AP700, AP701, AP800, AP900)
+  meaning: Payload is missing required parameter
+  resolution: Include the missing required parameter
+  message: 'Missing required Parameter: ''{parameter}'''
+- code: AP701
+  group: General/Other Errors (AP700, AP701, AP800, AP900)
+  meaning: Improperly formatted parameter(s)
+  resolution: Ensure all parameters are correctly formatted before retrying.
+  message: 'Improperly formatted parameter(s): \[''{parameter}'']'
+- code: AP800
+  group: General/Other Errors (AP700, AP701, AP800, AP900)
+  meaning: 'Shopify integration: access token missing'
+  resolution: There is no access token for given scope. Reach out to Aeropay for assistance.
+  message: 'No access token for shopify scope: {scope}'
+- code: AP900
+  group: General/Other Errors (AP700, AP701, AP800, AP900)
+  meaning: Error calling external API
+  resolution: An issue arose calling an external API. Reach out to Aeropay for assistance.
+  message: Error when calling {api} API, returned with HTTP status code {code}
+- code: AP1000
+  group: Internal Errors (AP10XX)
+  meaning: Invalid API endpoint
+  resolution: Double check the endpoint you are calling is valid. Try again or reach out to Aeropay for assistance.
+  message: Invalid API'
+- code: AP1001
+  group: Internal Errors (AP10XX)
+  meaning: Issue with Aeropay database
+  resolution: Reach out to Aeropay for assistance.
+  message: Error committing to database in function {self.function}
+- code: AP1002
+  group: Internal Errors (AP10XX)
+  meaning: Error calling Internal API
+  resolution: An issue arose processing a user's transaction. Try again or reach out to Aeropay for assistance.
+  message: Error processing transaction history {function}
+- code: AP1100
+  group: Webhooks (AP11XX)
+  meaning: Invalid webhook topic
+  resolution: Provide valid topic or webhook Id for webhook delete
+  message: Topic or webhook Id required to delete webhook
+- code: AP1101
+  group: Webhooks (AP11XX)
+  meaning: Error fetching webhook
+  resolution: Aeropay is unable to fetch webhook. Try again later or contact Aeropay.
+  message: Error fetching webhook
+- code: AP1102
+  group: Webhooks (AP11XX)
+  meaning: No topic provided
+  resolution: Provide a valid topic for webhook.
+  message: topic required to create webhook
+- code: AP1103
+  group: Webhooks (AP11XX)
+  meaning: No url provided
+  resolution: Provide a valid url for webhook.
+  message: Url is invalid or missing
+- code: AP1104
+  group: Webhooks (AP11XX)
+  meaning: Invalid topic
+  resolution: Provide a valid url for webhook.
+  message: 'Unrecognized topic: {topic}'
+- code: AP1105
+  group: Webhooks (AP11XX)
+  meaning: Error creating webhook
+  resolution: Webhook could not be created. Try again later or contact Aeropay.
+  message: Error creating webhook
+- code: AP1106
+  group: Webhooks (AP11XX)
+  meaning: Error deleting webhook
+  resolution: Webhook could not be deleted. Try again later or contact Aeropay.
+  message: Error deleting webhook
+- code: AP1107
+  group: Webhooks (AP11XX)
+  meaning: No merchant provided
+  resolution: Provide a valid merchantId.
+  message: A Merchant is required
+- code: AP1200
+  group: Merchant Bill Error (AP12XX)
+  meaning: Failed to create a payout transaction
+  resolution: Try again or reach out to Aeropay for assistance.
+  message: Could not create Merchant Bill Transaction for merchantId {merchant\_id}
+- code: AP1201
+  group: Merchant Bill Error (AP12XX)
+  meaning: Failed to create payout or invoice payment
+  resolution: Try again or reach out to Aeropay for assistance.
+  message: Could not create Bill for merchantId {merchant\_id}
+- code: AP1202
+  group: Merchant Bill Error (AP12XX)
+  meaning: Issue fetching merchant for payout or invoice payment
+  resolution: Try again or reach out to Aeropay for assistance.
+  message: Could not fetch Bill for merchantId {merchant\_id}
+- code: AP1203
+  group: Merchant Bill Error (AP12XX)
+  meaning: Issue updating merchant for payout or invoice payment
+  resolution: Try again or reach out to Aeropay for assistance.
+  message: Could not update Merchant Bill for merchantId {merchant\_id}
+- code: AP1300
+  group: Refunds (AP13XX)
+  meaning: Transaction already refunded
+  resolution: The full transaction amount has already been covered by reversals (queued and/or processed) against
+    this transaction - summed across all of them, not just one. No further refund is needed; partial refunds for
+    the remaining, uncovered amount are still allowed.
+  message: 'Transaction #{transaction\_id} has already been refunded by Transaction #{reversal\_transaction\_id}'
+- code: AP1302
+  group: Refunds (AP13XX)
+  meaning: Invalid refund amount
+  resolution: Provide refund amount less than or equal to the transaction amount.
+  message: Refund amount must be equal to or less than the original transaction amount
+- code: AP1303
+  group: Refunds (AP13XX)
+  meaning: Negative refund amount
+  resolution: Cannot refund a negative amount.
+  message: Refund amount must be positive
+- code: AP1304
+  group: Refunds (AP13XX)
+  meaning: Invalid transaction type for refund
+  resolution: Transaction cannot be refunded due to transaction type.
+  message: '{transaction\_type} transactions cannot be refunded'
+- code: AP1305
+  group: Refunds (AP13XX)
+  meaning: RTP transaction cannot be voided
+  resolution: Schedule a refund instead of voiding the RTP transaction.
+  message: Transaction cannot be voided, please schedule a refund
+- code: AP1306
+  group: Refunds (AP13XX)
+  meaning: Invalid transaction status for refund
+  resolution: The transaction's current status does not allow a reversal. Check the transaction status before retrying.
+  message: Cannot reverse transaction with status of {transaction\_status}
+- code: AP1400
+  group: Idempotency (AP14XX)
+  meaning: Idempotency-Key reused with a different request body
+  resolution: Provide a unique Idempotency-Key for each unique request payload.
+  message: This operation is idempotent and it requires correct usage of Idempotency Key. Idempotency Key cannot
+    be reused across different payloads of this operation
+- code: AP1401
+  group: Idempotency (AP14XX)
+  meaning: Idempotency-Key reused while the previous request is still processing
+  resolution: Retry the request only after the previous request has completed.
+  message: A request with the same Idempotency-Key for the same operation is being processed or is outstanding
+- code: AP1402
+  group: Idempotency (AP14XX)
+  meaning: Invalid Idempotency-Key structure
+  resolution: Ensure the Idempotency-Key is correctly formatted and included in the request header.
+  message: This operation is idempotent and requires correct usage of Idempotency-Key

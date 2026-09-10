@@ -1,0 +1,45 @@
+generated: '2026-09-10'
+method: searched
+source: https://dev.aero.inc/llms.txt
+limit_count: 0
+published: false
+note: 'Aeropay documents no rate limits. A full-text search across the 98-page documentation index at
+  https://dev.aero.inc/llms.txt and every harvested docs page found no occurrence of "rate limit",
+  "throttle", "429", "X-RateLimit", "RateLimit-" or "Retry-After". The published OpenAPI declares no 429
+  response on any of its 32 operations and no rate-limit response headers anywhere. An integrator has no
+  documented ceiling, no runtime signal to back off against, and no documented status code on exhaustion.'
+limits: []
+headers: []
+exhaustion_status: null
+retry_after: false
+adjacent_limits_that_are_documented:
+- limit: Bearer token TTL
+  value: 30 minutes
+  scope: per-token
+  source: https://dev.aero.inc/docs/token-scopes
+  note: 'Not a rate limit, but it is the one hard timing constraint Aeropay publishes — an agent must
+    re-mint a token every 30 minutes.'
+- limit: Idempotency key retention
+  value: 1 day
+  scope: per-key
+  source: https://dev.aero.inc/reference/get_v2-transaction-idempotency-idempotencykey
+  note: After the TTL expires the transaction may still exist but can no longer be retrieved by its key.
+- limit: Webhook delivery retries
+  value: up to 5 retries with exponential backoff and jitter
+  scope: per-webhook-endpoint
+  trigger: Callback fails to answer HTTP 200 within 3000ms.
+  source: https://dev.aero.inc/docs/webhooks-1
+  note: 'This is Aeropay rate-limiting ITSELF against the integrator, the inverse direction. It is the
+    only backoff behaviour Aeropay publishes.'
+- limit: Maximum linked bank accounts per user
+  value: not published
+  error_code: AP414
+  meaning: Maximum linked accounts reached.
+  source: https://dev.aero.inc/docs/error-handling
+  note: A ceiling exists and is enforced; its value is not documented.
+- limit: Transaction amount ceiling
+  value: not published
+  error_code: AP304
+  meaning: Transaction amount exceeds limit.
+  source: https://dev.aero.inc/docs/error-handling
+  note: Per-merchant limit, enforced but not published.

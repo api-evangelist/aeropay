@@ -1,0 +1,233 @@
+generated: '2026-09-10'
+method: searched
+source: openapi/aeropay-v2-openapi.yml
+docs:
+- https://dev.aero.inc/docs/api-quick-start
+- https://dev.aero.inc/docs/token-scopes
+- https://dev.aero.inc/docs/error-handling
+- https://dev.aero.inc/docs/transaction-status
+- https://dev.aero.inc/reference/post_v2-transaction
+- https://dev.aero.inc/reference/post_v2-reversetransaction
+- https://dev.aero.inc/reference/get_v2-transaction-idempotency-idempotencykey
+cross_links:
+  errors: errors/aeropay-problem-types.yml
+  error_codes: errors/aeropay-error-codes.yml
+  decline_codes: errors/aeropay-decline-codes.yml
+  lifecycle: lifecycle/aeropay-lifecycle.yml
+  authentication: authentication/aeropay-authentication.yml
+  rate_limits: rate-limits/aeropay-rate-limits.yml
+  sandbox: sandbox/aeropay-sandbox.yml
+
+auth_style:
+  mechanism: bearer-jwt
+  header: 'authorization: Bearer {{token}}'
+  token_endpoint: POST /v2/token
+  token_ttl: 30 minutes
+  actor_selection: 'A `scope` body parameter on the token request selects merchant or userForMerchant.'
+  detail: authentication/aeropay-authentication.yml
+
+idempotency:
+  supported: true
+  coverage: partial
+  mechanism: header
+  header: Idempotency-Key
+  scope:
+  - POST /v2/transaction
+  - POST /v2/preauthTransaction
+  - POST /v2/reverseTransaction
+  - POST /v2/payoutTransaction
+  optional: true
+  retention: 1 day
+  lookup_operation: GET /v2/transaction/idempotency/{idempotencyKey}
+  replay_behaviour: 'The first request carrying a key is processed and its response stored; a later request
+    with the same key receives the stored response instead of creating a second transaction. Reusing a key
+    with a different request body is rejected (AP1400), so one key always maps to one logical operation.'
+  errors:
+  - code: AP1400
+    http: 400
+    meaning: Idempotency key reused with a different payload.
+  - code: AP1401
+    http: 400
+    meaning: A request with the same idempotency key is still processing.
+  - code: AP1402
+    http: 400
+    meaning: Invalid idempotency key structure.
+  coverage_evidence: 'The Idempotency-Key header is declared on exactly 4 of the 16 mutating operations in
+    the published OpenAPI contract. It covers the four money-movement CREATE operations and nothing else.
+    POST /v2/user, POST /v2/confirmUser, POST /v2/linkAccountFromAggregator, PATCH /v2/userBankAccount/{id},
+    PATCH and DELETE /v2/preauthTransaction/{id}, POST /v2/capturePreauthTransaction, POST /v2/paymentLink,
+    POST /v2/createWebhookSigningKey, POST /v2/webhook, DELETE /v2/webhook and POST /v2/merchantReputation
+    carry no replay protection. POST /v2/capturePreauthTransaction is the notable gap — it moves money and
+    has no idempotency key.'
+  caveat: 'Aeropay states plainly that idempotency is OPTIONAL: "if no idempotency key is sent, the API does
+    not apply this behavior and does not guarantee protection against duplicate refunds on retries." An
+    agent that omits the header gets no protection on any operation.'
+  duplicate_guard_without_key:
+    code: AP314
+    meaning: 'Transaction already exists — a separate server-side duplicate check that fires independently
+      of the idempotency key.'
+
+reversibility:
+  grade: verified
+  summary: 'The money-movement surface has real reversal operations with documented windows. Identity,
+    bank-link and notification writes do not.'
+  surfaces:
+  - write_operation: POST /v2/transaction
+    operation_id: null
+    reference_slug: post_v2-transaction
+    reversal_operation: POST /v2/reverseTransaction
+    reversal_reference_slug: post_v2-reversetransaction
+    reversal_kind: void-or-refund
+    window: 'Same business day — "Transactions that are within the same business day can be voided on the
+      spot, where no money is moved in either direction. If that window has closed and the transaction has
+      begun to process, a transaction in the reverse direction will be created." Refunds take 2-3 business
+      days to settle.'
+    partial: true
+    partial_note: 'An amount may be supplied for a partial refund; otherwise the full amount is refunded.
+      A transaction may carry multiple independent reversals so long as their amounts do not collectively
+      exceed the original (AP1300 / AP1302 when they would).'
+    grade: verified
+    docs: https://dev.aero.inc/reference/post_v2-reversetransaction
+  - write_operation: POST /v2/preauthTransaction
+    reference_slug: post_v2-preauthtransaction
+    reversal_operation: DELETE /v2/preauthTransaction/{preauthTransactionId}
+    reversal_kind: cancel
+    window: 'Before capture. AP312 "Preauth already captured" and AP313 "Preauth ineligible for capture"
+      are returned once the window has closed. Aeropay states preauthorized transactions have no default
+      expiration but the expiry is configurable per merchant, so the outer bound is merchant-specific and
+      is not published.'
+    grade: verified
+    docs: https://dev.aero.inc/reference/delete_v2-preauthtransaction-preauthtransactionid
+  - write_operation: POST /v2/capturePreauthTransaction
+    reference_slug: post_v2-capturepreauthtransaction
+    reversal_operation: POST /v2/reverseTransaction
+    reversal_kind: void-or-refund
+    window: 'Capture produces a standard Aeropay transaction, which then falls under the same same-business-day
+      void / post-batch refund window as POST /v2/transaction.'
+    grade: verified
+  - write_operation: POST /v2/payoutTransaction
+    reference_slug: post_v2-payouttransaction
+    reversal_operation: null
+    window: null
+    grade: none
+    note: 'No reversal is documented for a payout. POST /v2/reverseTransaction states its id "is only for
+      AeroTransactions", and AP1304 "Transaction type cannot be refunded" exists, but the docs never say
+      explicitly whether a payout is reversible. Recorded as undocumented rather than assumed either way.'
+  - write_operation: POST /v2/paymentLink
+    reference_slug: post_v2-paymentlink
+    reversal_operation: null
+    window: null
+    grade: none
+    note: 'Sends an SMS or email immediately. No recall, expiry or revoke operation is published — this
+      write cannot be taken back.'
+  - write_operation: POST /v2/webhook
+    reference_slug: post_v2-webhook
+    reversal_operation: DELETE /v2/webhook
+    reversal_kind: delete
+    window: 'Unbounded — a webhook subscription can be deleted at any time by topic and/or webhook id.'
+    grade: verified
+  - write_operation: POST /v2/user
+    reference_slug: post_v2-user
+    reversal_operation: null
+    window: null
+    grade: none
+    note: 'The API publishes no delete-user operation. The sandbox testing guide instructs developers to
+      "delete the user from your backend database" to simulate a network user, which confirms deletion is
+      not available through the Aeropay API.'
+  - write_operation: POST /v2/linkAccountFromAggregator
+    reference_slug: post_v2-linkaccountfromaggregator
+    reversal_operation: null
+    window: null
+    grade: none
+    note: 'No unlink operation is published. AP412 "Bank account already removed" implies removal happens
+      somewhere, but no API operation performs it.'
+
+dry_run_mode:
+  supported: false
+  note: 'No preview, simulate or dry-run parameter exists on any operation. The closest facility is the
+    sandbox environment with its exceptionScenario harness (sandbox/aeropay-sandbox.yml), which runs a
+    REAL transaction in a separate environment rather than rehearsing one in production.'
+
+pagination:
+  style: page-number
+  applies_to:
+  - POST /v2/transactionSearch
+  request_fields:
+  - page
+  - perPage
+  - sortBy
+  - orderBy
+  response_field: paging
+  response_note: 'The response carries a `paging` object with total counts alongside a `transactions` array.'
+  note: 'Only one operation paginates. GET /v2/preauthTransactions, GET /v2/bankAccounts and the report
+    endpoints return unpaginated collections. Page and perPage are typed as STRING in the contract, not
+    integer.'
+  cursor: false
+
+field_expansion:
+  supported: false
+sparse_fieldsets:
+  supported: false
+
+metadata:
+  supported: true
+  mechanism: 'A free-form `attributes` array on transaction creates, described as "AeroPay formatted data
+    that you may wish to include with your transaction. For example, an invoice number or the tracking of
+    a tip amount." A separate `referenceId` string carries the merchant''s own transaction identifier and
+    is searchable via POST /v2/transactionSearch filters.referenceId.'
+  fields:
+  - attributes
+  - referenceId
+  tip_note: 'Tip amounts supplied as an attribute are ADDED to the `amount` value, not carried separately.'
+
+request_id_tracing:
+  supported: false
+  note: 'No X-Request-Id, correlation-id or trace header is documented on requests or responses, and none
+    appears in the OpenAPI contract. An agent debugging a failed call has no server-side handle to quote
+    to support beyond the transaction id, when one was created.'
+
+versioning:
+  scheme: uri-path
+  current: v2
+  base_production: https://api.aeropay.com/v2
+  base_sandbox: https://api.sandbox-pay.aero.inc/v2
+  note: 'The version is in the path on every operation. No Accept-header or date-based versioning.'
+
+error_envelope:
+  format: custom
+  rfc9457: false
+  http_semantics: 'Aeropay states in its own error glossary: "NOTE: All Aeropay errors return with an HTTP
+    200 response." Many errors do carry a real 400 or 401 and the OpenAPI declares 400/401 responses on
+    most operations, but the whole AP1XX-AP5XX business-error band is returned inside an HTTP 200. A client
+    that branches on status code alone will read a declined payment as a success.'
+  shapes:
+  - shape: error-object
+    example: '{"error": {"help": "contact support@aeropay.com for help", "code": "AP113", "message": "User does not exist"}}'
+  - shape: success-flag
+    example: '{"success": false, "code": "AP109", "error": "We''ve detected delinquent activity on your account."}'
+  note: 'Two distinct envelopes are documented for the same API. The spec models the first as schema
+    `200failure`. Codes are AP-prefixed strings; see errors/aeropay-error-codes.yml for all 91.'
+
+rate_limit_signaling:
+  documented: false
+  headers: []
+  exhaustion_status: null
+  note: 'No published limits and no rate-limit response headers. See rate-limits/aeropay-rate-limits.yml.'
+
+money_representation:
+  shape: '{"amount": <integer minor units>, "currency": "USD"}'
+  note: 'Amounts are integer cents in responses and webhook payloads — an `amount` of 500 is $5.00. The
+    tipConfiguration flat option uses the same convention. Request bodies in the docs show both an integer
+    `amount` and a `value` key in different examples; the contract is not fully consistent here.'
+  currencies:
+  - USD
+  jurisdiction: 'U.S. bank accounts only. Error AP119 rejects non-US country codes on user phone numbers.'
+
+identifiers:
+  transaction: UUID v4
+  user: UUID v4
+  merchant: integer
+  location: integer
+  bank_account: integer (userAccountId)
+  note: 'The API mixes UUID identifiers for user-facing objects with integer identifiers for merchant,
+    location and bank-account records. There is no type prefix on any identifier.'

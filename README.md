@@ -64,5 +64,70 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Aeropay is a company surfaced via the API Evangelist harvest backlog (source: secondary-market) and added to the network as a stub for full-pipeline profiling.
-- https://www.nasdaqprivatemarket.com/
+Aeropay is a Chicago-based fintech operating a pay-by-bank network that moves money directly between
+consumer bank accounts and merchants over ACH, Request for Payment (RfP) and RTP rails, without cards.
+Its product suite is Aerosync (branded bank linking), Pay (merchant acceptance), Payout (real-time
+merchant-to-consumer credits) and Guard (risk decisioning). Aeropay is SOC 2 compliant and audits its ACH
+operations annually against Nacha standards. U.S. bank accounts only.
+
+## What this profile found
+
+| | |
+|---|---|
+| Machine-readable contract | **Yes** — OpenAPI 3.0.0, 26 paths, 32 operations |
+| Where it was found | The ReadMe API registry backing the docs site, `https://dash.readme.com/api/v1/api-registry/dsdmfqmtkajkc6` |
+| Production base URL | `https://api.aeropay.com/v2` |
+| Sandbox base URL | `https://api.sandbox-pay.aero.inc/v2` |
+| Remote MCP server | **Yes** — `https://dev.aero.inc/mcp`, anonymous `tools/list` returns 4 tools |
+| Webhooks | 9 documented topics across ACH, RfP and RTP |
+| First-party SDKs | 6 Aerosync bank-linking packages (npm x2, Maven Central, pub.dev, Swift PM, CDN) |
+| Error surface | 109 AP-prefixed codes plus the full 70-entry Nacha ACH return-code registry |
+| `/.well-known/` surface | **None** — 14 paths probed on 8 hosts, zero hits |
+| Published pricing | **None** — `/pricing` serves the demo form |
+| Status page | **None** — `status.aeropay.com` and `status.aero.inc` do not resolve |
+
+## How the contract was found
+
+The developer portal at `developer.aeropay.com` does not resolve. The live docs are at `dev.aero.inc`, a
+ReadMe-hosted site whose `/openapi.json` returns an HTML 404 shell and whose API host answers
+`403 {"message":"Missing Authentication Token"}` on every unmatched route — both of which look like "no
+spec" on a shallow pass. The real contract was recovered from the ReadMe API registry UUID embedded in the
+reference page source. Ownership was confirmed on the spec's own terms: `info.title` is "Aeropay v2 API",
+`servers[]` is `api.sandbox-pay.aero.inc` (`aero.inc` is Aeropay's own developer domain), and the
+description names `support@aeropay.com`.
+
+Aeropay also publishes two `llms.txt` files — a 98-entry documentation index at `dev.aero.inc/llms.txt`
+carrying per-operation error glossaries, and a curated marketing index at `www.aeropay.com/llms.txt`.
+
+## Notable gaps
+
+- **The contract declares no `operationId` on any of its 32 operations**, no `tags`, and an **empty
+  `components.securitySchemes`** — so the bearer-token model that 31 operations require is invisible to any
+  machine reading the spec alone. `servers[]` names only the sandbox host.
+- **Aeropay returns most errors inside an HTTP 200.** Its own glossary opens with "NOTE: All Aeropay errors
+  return with an HTTP 200 response." A client branching on status code alone reads a declined payment as a
+  success.
+- **Idempotency covers 4 of 16 mutating operations** — the four money-movement creates, and it is optional
+  even there. `POST /v2/capturePreauthTransaction` moves money and has no idempotency key at all.
+- **No API changelog.** The two "Release Notes" pages cover only the Aerosync SDKs, and their most recent
+  dated entry is 2025-09-30 while the packages themselves shipped in August 2026. Material contract changes
+  (multiple independent reversals, the idempotency surface, `payloadVersion: 2.0` webhooks) are announced
+  only inside the affected reference page's prose.
+- **No vulnerability disclosure program, no `security.txt`, no status page, no rate limits, no published
+  pricing, and no self-serve sandbox** — credentials require an email to support or a sales demo.
+
+## Reversibility
+
+Graded **verified**. `POST /v2/reverseTransaction` voids a transaction outright within the same business
+day and creates a 2-3 day reverse-direction refund after batching; `DELETE /v2/preauthTransaction/{id}`
+cancels an authorization before capture. Payouts and payment links have **no documented reversal** and are
+recorded as irreversible. See `conventions/aeropay-conventions.yml`.
+
+## Artifacts in this repository
+
+`openapi/` `openapi/_original/` `overlays/` `mcp/` `asyncapi/` `llms/` `well-known/` `packages/`
+`authentication/` `conventions/` `errors/` `data-model/` `conformance/` `lifecycle/` `changelog/`
+`components/` `sandbox/` `security/` `plans/` `rate-limits/` `skills/`
+
+- https://www.aeropay.com/
+- https://dev.aero.inc/docs/getting-started

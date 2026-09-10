@@ -1,0 +1,224 @@
+generated: '2026-09-10'
+method: derived
+source: openapi/aeropay-v2-openapi.yml (4xx/5xx responses), enriched from https://dev.aero.inc/docs/error-handling
+format: custom
+rfc9457: false
+note: 'Aeropay does not use RFC 9457 problem+json. Error responses are application/json objects in one of two shapes
+  ({"error":{code,message,help}} or {"success":false,code,error}); see conventions/aeropay-conventions.yml. CRITICAL
+  CAVEAT: Aeropay states that "All Aeropay errors return with an HTTP 200 response", so the 4xx/5xx responses derived
+  below are only the subset the contract models as HTTP failures. The full business-error surface is 91 AP-prefixed
+  codes returned inside HTTP 200 and is catalogued separately in errors/aeropay-error-codes.yml. This file therefore
+  UNDERSTATES the error surface by design — it reports what the machine-readable contract says.'
+transport_note: No 5xx response is declared anywhere in the contract. Every declared failure is a 400 or 401.
+coverage:
+  operations_total: 32
+  operations_with_a_declared_4xx: 26
+  declared_failure_responses: 29
+  distinct_statuses:
+  - 400
+  - 401
+  problem_json_responses: 0
+problems:
+- status: 400
+  title: Bad Request - Validation Errors. See examples for common vs. scope-specific errors.
+  operation: POST /v2/token
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: object
+- status: 401
+  title: Unauthorized - Authentication Failed
+  operation: POST /v2/token
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: object
+- status: 401
+  title: Unauthorized - Invalid or missing Merchant Token
+  operation: POST /v2/user
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: null
+- status: 401
+  title: Unauthorized - Invalid or missing User Token
+  operation: GET /v2/user
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: null
+- status: 400
+  title: Bad Request - Validation Errors
+  operation: POST /v2/confirmUser
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: object
+- status: 400
+  title: Bad Request - Validation Errors
+  operation: GET /v2/aggregatorCredentials
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: object
+- status: 400
+  title: Bad Request - Validation Errors
+  operation: PATCH /v2/userBankAccount/{bankAccountId}
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: object
+- status: 401
+  title: Unauthorized - Invalid or missing Token
+  operation: GET /v2/bankAccounts
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: object
+- status: 400
+  title: Bad Request - Validation Errors
+  operation: POST /v2/transaction
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: object
+- status: 400
+  title: Missing or invalid idempotency key
+  operation: GET /v2/transaction/idempotency/{idempotencyKey}
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: '#/components/schemas/200failure'
+- status: 400
+  title: Bad Request
+  operation: POST /v2/preauthTransaction
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: object
+- status: 400
+  title: Bad Request
+  operation: PATCH /v2/preauthTransaction/{preauthTransactionId}
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: null
+- status: 400
+  title: Bad Request
+  operation: DELETE /v2/preauthTransaction/{preauthTransactionId}
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: null
+- status: 401
+  title: Unauthorized
+  operation: GET /v2/preauthTransactions
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: null
+- status: 400
+  title: Bad Request
+  operation: POST /v2/capturePreauthTransaction
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: null
+- status: 400
+  title: Bad Request - Validation Error
+  operation: POST /v2/reverseTransaction
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: object
+- status: 400
+  title: Bad Request
+  operation: POST /v2/payoutTransaction
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: null
+- status: 400
+  title: Bad Request - Validation Errors
+  operation: POST /v2/transactionSearch
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: object
+- status: 400
+  title: Bad Request
+  operation: POST /v2/paymentLink
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: object
+- status: 401
+  title: Unauthorized
+  operation: POST /v2/paymentLink
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: object
+- status: 401
+  title: Unauthorized
+  operation: POST /v2/createWebhookSigningKey
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: object
+- status: 400
+  title: Bad Request - Validation Errors
+  operation: POST /v2/webhook
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: null
+- status: 401
+  title: Unauthorized
+  operation: GET /v2/webhook
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: null
+- status: 400
+  title: Bad Request
+  operation: DELETE /v2/webhook
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: null
+- status: 401
+  title: Unauthorized
+  operation: GET /v2/reports/transactions/batches
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: null
+- status: 400
+  title: Validation error
+  operation: GET /v2/merchantReputation
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: null
+- status: 401
+  title: Unauthorized
+  operation: GET /v2/merchantReputation
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: null
+- status: 400
+  title: Reputation validation error
+  operation: POST /v2/merchantReputation
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: null
+- status: 401
+  title: Unauthorized
+  operation: GET /v2/merchant/tipConfiguration
+  reference_slug: null
+  media_types:
+  - application/json
+  schema: null

@@ -1,0 +1,77 @@
+generated: '2026-09-10'
+method: searched
+source:
+- https://dev.aero.inc/docs/getting-started
+- https://dev.aero.inc/docs/release-notes
+- https://dev.aero.inc/docs/launch-checklist
+- openapi/aeropay-v2-openapi.yml
+versioning:
+  scheme: uri-path
+  current: v2
+  docs: https://dev.aero.inc/docs/api-quick-start
+  base_production: https://api.aeropay.com/v2
+  base_sandbox: https://api.sandbox-pay.aero.inc/v2
+  prior_versions_documented: false
+  note: 'A v1 evidently existed — the current surface is named "Aeropay v2 API" and the docs branch tree
+    on the ReadMe host carries both a 1.1 and a 2.0 branch — but no v1 documentation, migration guide or
+    retirement notice is published.'
+deprecation:
+  policy_url: null
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  deprecated_operations: []
+  note: 'No deprecation policy exists. No operation in the published OpenAPI carries `deprecated: true`,
+    no Sunset or Deprecation response header is documented, and no notice period is stated anywhere. The
+    only deprecation signal Aeropay has ever published is inside SDK release notes ("Breaking Changes
+    (for v2.0.4 and earlier)"), and that covers the Aerosync widget SDK, not the API.'
+  observed_breaking_change_without_notice:
+    where: https://dev.aero.inc/reference/post_v2-reversetransaction
+    what: 'The reverseTransaction reference states: "Previously, concurrent partial refunds were silently
+      merged into a single reversal record; that behavior has changed. A transaction can have multiple
+      independent reversals." A behavioural change to a money-movement operation, announced only in the
+      body of the reference page, with no date and no entry in any changelog.'
+sla:
+  url: null
+  published: false
+  uptime_target: null
+  note: 'No SLA, uptime commitment or credit schedule is published on the public site. Aeropay does make a
+    substantive operational promise in its docs — "With Aeropay''s guaranteed payments, transactions can be
+    considered successful as long as a successful response is returned" and pending transactions are
+    guaranteed funds — but the terms of that guarantee are not published.'
+status_page:
+  url: null
+  published: false
+  probed:
+  - url: https://status.aeropay.com/
+    result: NXDOMAIN
+  - url: https://status.aero.inc/
+    result: NXDOMAIN
+  note: 'No status page exists on either Aeropay domain. No status link appears on the homepage, the
+    developer portal, the trust center or the help centre. For a payments network handling live money
+    movement this is a notable operational gap — an integrator has no public place to check whether an
+    outage is Aeropay''s or theirs. Aeropay directs outage handling to a named human instead: "In the case
+    of a major outage event of your platform, you can contact your dedicated Aeropay CSM."'
+  no_pointer_reason: 'No StatusPage pointer is emitted in apis.yml because no status page was found. A
+    pointer here would assert a surface Aeropay does not serve.'
+support:
+  email: support@aeropay.com
+  help_center: https://help.aeropay.com/
+  customer_support: https://www.aeropay.com/personal/support
+  named_contact: 'Merchants are assigned a dedicated CSM and a Solutions Engineer; several documented
+    integration steps (origin-URL whitelisting for the Aerosync SDK, the sandbox configurationId OTP
+    bypass) REQUIRE contacting that engineer and cannot be self-served.'
+onboarding_gates:
+  sandbox: Email support@aeropay.com or book a demo; credentials issued after approval.
+  production: Granted after Aeropay reviews the integration against the published launch checklist.
+  launch_checklist: https://dev.aero.inc/docs/launch-checklist
+  aerosync_origin_whitelisting: 'Website origin URLs must be sent to an Aeropay Solutions Engineer for
+    allowlisting before the Aerosync web SDK will load.'
+release_notes:
+  url: https://dev.aero.inc/docs/release-notes
+  scope: Aerosync Web SDK only
+  secondary: https://dev.aero.inc/docs/release-notes-1
+  secondary_scope: Aerosync React Native SDK only
+  api_scope: none
+  detail: changelog/aeropay-changelog.yml

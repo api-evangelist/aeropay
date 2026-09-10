@@ -1,0 +1,117 @@
+generated: '2026-09-10'
+method: searched
+source: 'Aeropay SDK documentation on dev.aero.inc plus the public registry metadata endpoints for each
+  package (registry.npmjs.org, repo1.maven.org, pub.dev, GitHub releases).'
+note: 'Every first-party Aeropay package is an AEROSYNC BANK-LINKING SDK — a wrapper that launches the
+  Aerosync widget so an end user can connect their bank. Aeropay publishes NO server-side client library
+  for the v2 REST API in any language; the docs teach it with raw curl plus copy-paste Python, Node.js and
+  Go examples (https://dev.aero.inc/docs/python-example, /nodejs-example, /go-example), which are sample
+  code, not distributed packages. Recorded here so the absence is legible rather than implied.'
+packages:
+- language: javascript
+  registry: npm
+  name: aerosync-web-sdk
+  url: https://www.npmjs.com/package/aerosync-web-sdk
+  install: npm i aerosync-web-sdk
+  official: true
+  scope: aerosync-bank-linking
+  version: 2.2.0
+  published: '2026-08-14'
+  first_published: '2024-02-27'
+  release_count: 26
+  docs: https://dev.aero.inc/docs/npm-sdk
+  note: 'Declares repository github.com/Aeropay-inc/aerosync-web-sdk, which returns 404 — the repo is
+    private or was renamed, so the published source is not reachable from the package metadata.'
+- language: typescript
+  registry: npm
+  name: aerosync-react-native-sdk
+  url: https://www.npmjs.com/package/aerosync-react-native-sdk
+  install: npm install aerosync-react-native-sdk
+  official: true
+  scope: aerosync-bank-linking
+  version: 4.1.0
+  published: '2026-08-14'
+  release_count: 21
+  source_code: https://github.com/Aeropay-inc/aerosync-react-native-sdk
+  docs: https://dev.aero.inc/docs/react-native-sdk
+  note: Requires react-native-webview as a peer install.
+- language: kotlin
+  registry: maven-central
+  name: com.aerosync:bank-link-sdk
+  url: https://central.sonatype.com/artifact/com.aerosync/bank-link-sdk/overview
+  install: "implementation group: 'com.aerosync', name: 'bank-link-sdk', version: '2.1.0'"
+  official: true
+  scope: aerosync-bank-linking
+  version: 2.1.0
+  published: '2026-08-18'
+  release_count: 17
+  source_code: https://github.com/Aeropay-inc/aerosync-android-sdk
+  docs: https://dev.aero.inc/docs/android-sdk
+  note: 'The Android SDK doc still pins version 1.0.9 in its Gradle and Maven snippets while Maven Central
+    released 2.1.0 on 2026-08-18 — the published install instruction is four minor versions behind the
+    artifact it installs.'
+- language: dart
+  registry: pub.dev
+  name: aerosync_flutter_sdk
+  url: https://pub.dev/packages/aerosync_flutter_sdk
+  install: "aerosync_flutter_sdk: ^2.1.1"
+  official: true
+  scope: aerosync-bank-linking
+  version: 2.1.1
+  published: '2026-08-20'
+  release_count: 32
+  docs: https://dev.aero.inc/docs/flutter-sdk
+  note: 'The Flutter SDK doc pins "^1.1.0" as the current release while pub.dev has shipped 2.1.1 — the
+    documented constraint will not resolve to the current major version.'
+- language: swift
+  registry: swift-package-manager
+  name: aerosync-ios-sdk
+  url: https://github.com/Aeropay-inc/aerosync-ios-sdk
+  install: https://github.com/Aeropay-inc/aerosync-ios-sdk.git
+  official: true
+  scope: aerosync-bank-linking
+  version: 2.2.1
+  published: '2026-08-20'
+  docs: https://dev.aero.inc/docs/ios-sdk
+  note: 'Distributed as a Swift package from the GitHub repository — there is no central Swift registry
+    to query, so version and date are read from the repository''s latest GitHub release (tag 2.2.1).'
+- language: javascript
+  registry: cdn
+  name: aerosync-widget.js
+  url: https://cdn.sync.aero.inc/2.1.5/aerosync-widget.js
+  install: '<script src="https://cdn.sync.aero.inc/2.1.5/aerosync-widget.js"></script>'
+  official: true
+  scope: aerosync-bank-linking
+  version: 2.1.5
+  published: null
+  docs: https://dev.aero.inc/docs/cdn-v2
+  note: 'CDN-distributed browser build with no registry metadata endpoint. The version is pinned in the
+    URL path (2.1.5) and the file serves HTTP 200 at 17,053 bytes, but the CDN exposes no publish date,
+    so `published` is null — checked, nothing to record. Note the CDN build (2.1.5) and the npm build
+    (2.2.0) are on different versions of the same widget.'
+registries_checked_with_no_first_party_result:
+- registry: pypi
+  note: No first-party Aeropay/Aerosync package. The docs ship a Python request example, not a library.
+- registry: nuget
+  note: No first-party package; no .NET SDK is documented.
+- registry: pkg.go.dev
+  note: No first-party module. The docs ship a Go request example, not a library.
+- registry: rubygems
+  note: No first-party gem.
+- registry: packagist
+  note: No first-party package.
+- registry: crates.io
+  note: No first-party crate.
+summary:
+  official_packages: 6
+  languages:
+  - javascript
+  - typescript
+  - kotlin
+  - dart
+  - swift
+  server_side_api_clients: 0
+  most_recent_release: '2026-08-20'
+  currency: 'All six first-party packages shipped a release in August 2026, so the SDK line is actively
+    maintained. The decay signal here is not the packages — it is the DOCS, which pin superseded versions
+    for Android (1.0.9 vs 2.1.0) and Flutter (^1.1.0 vs 2.1.1).'

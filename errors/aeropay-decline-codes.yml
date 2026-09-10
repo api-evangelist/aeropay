@@ -1,0 +1,398 @@
+generated: '2026-09-10'
+method: searched
+source: https://dev.aero.inc/docs/transaction-status
+source_additional:
+- https://dev.aero.inc/docs/error-handling
+- https://dev.aero.inc/docs/testing
+domain_standard:
+  id: nacha-ach-return-codes
+  body: Nacha
+  conforms: true
+  evidence: Aeropay publishes the NACHA R-code registry verbatim as its return-code glossary and states "These 'r-codes'
+    are standardized by NACHA, the governing body for the ACH network." Return codes surface on the wire as the
+    `returnCode` field on a declined transaction and, in sandbox, as `scenarioReturnCode` on an exceptionScenario
+    transaction.
+envelope:
+  declined_transaction_field: returnCode
+  sandbox_field: scenarioReturnCode
+  delivery: Return codes reach the integrator on the transaction_declined webhook topic, which Aeropay documents
+    as carrying ACH return codes.
+  note: An ACH return is asynchronous. POST /v2/transaction returns HTTP 200 with status "pending"; the return code
+    arrives days later on the webhook, never on the original response.
+masking:
+  to_buyer: Aeropay does not publish a masking policy for return codes. The consumer-facing error MESSAGES in the
+    AP glossary are written for display to the end user (e.g. AP302 "You have insufficient funds..."), while the
+    NACHA R-codes carry bank-internal detail (R05 unauthorized corporate debit, R07 revoked authorization, R10 not
+    authorized to debit) that is not written for consumer display. Whether Aeropay surfaces the raw R-code to buyers
+    is not stated.
+  documented: false
+summary:
+  ach_return_code_count: 70
+  aeropay_decline_code_count: 18
+  rails:
+  - ACH
+  - RfP
+  - RTP
+  note: Two distinct families. The R-codes are the NACHA network returns that arrive after settlement. The AP3XX/AP4XX
+    codes are Aeropay-side declines returned at transaction-create time, before anything reaches the ACH network.
+ach_return_codes:
+- code: R01
+  title: Insufficient Funds
+  standard: NACHA
+- code: R02
+  title: Account Closed
+  standard: NACHA
+- code: R03
+  title: No Account / Unable to Locate Account
+  standard: NACHA
+- code: R04
+  title: Invalid Account Number Structure
+  standard: NACHA
+- code: R05
+  title: Unauthorized Consumer Debit using Corporate SEC Code
+  standard: NACHA
+- code: R06
+  title: ODFI Requested Return
+  standard: NACHA
+- code: R07
+  title: Customer Revoked Authorization
+  standard: NACHA
+- code: R08
+  title: Payment Stopped
+  standard: NACHA
+- code: R09
+  title: Uncollected Funds
+  standard: NACHA
+- code: R10
+  title: Originator not known and/or not authorized to Debit Receiver’s Account
+  standard: NACHA
+- code: R11
+  title: Customer advises not within Authorization Terms
+  standard: NACHA
+- code: R12
+  title: Account Sold to Another DFI
+  standard: NACHA
+- code: R13
+  title: Invalid ACH Routing No.
+  standard: NACHA
+- code: R14
+  title: Representative Payee Deceased
+  standard: NACHA
+- code: R15
+  title: Beneficiary / Account Holder Deceased
+  standard: NACHA
+- code: R16
+  title: Account Frozen / Returned per OFAC
+  standard: NACHA
+- code: R17
+  title: File Record Edit Criteria / Suspicious Entry with Invalid Account No. / Return of Improperly-Initiated
+    Reversal
+  standard: NACHA
+- code: R18
+  title: Improper Effective Date
+  standard: NACHA
+- code: R19
+  title: Amount Field Error
+  standard: NACHA
+- code: R20
+  title: Non-Transaction Account
+  standard: NACHA
+- code: R21
+  title: Invalid Company ID
+  standard: NACHA
+- code: R22
+  title: Invalid Individual ID
+  standard: NACHA
+- code: R23
+  title: Receiver Refused Credit
+  standard: NACHA
+- code: R24
+  title: Duplicate Entry
+  standard: NACHA
+- code: R25
+  title: Addenda Error
+  standard: NACHA
+- code: R26
+  title: Mandatory Field Error
+  standard: NACHA
+- code: R27
+  title: Trace Number Error
+  standard: NACHA
+- code: R28
+  title: Routing No. Check Digit Error
+  standard: NACHA
+- code: R29
+  title: Not Authorized by Corporate Customer
+  standard: NACHA
+- code: R30
+  title: RDFI not in Check Truncation Program
+  standard: NACHA
+- code: R31
+  title: Permissible Return (CCD and CTX only)
+  standard: NACHA
+- code: R32
+  title: RDFI Non-Settlement
+  standard: NACHA
+- code: R33
+  title: Return of XCK
+  standard: NACHA
+- code: R34
+  title: Limited Participation DFI
+  standard: NACHA
+- code: R35
+  title: Improper Debit
+  standard: NACHA
+- code: R36
+  title: Improper Credit
+  standard: NACHA
+- code: R37
+  title: Source Document Presented
+  standard: NACHA
+- code: R38
+  title: Stop Payment on Source Document
+  standard: NACHA
+- code: R39
+  title: Improper Source Document
+  standard: NACHA
+- code: R40
+  title: Return of ENR
+  standard: NACHA
+- code: R41
+  title: Invalid Transaction Code
+  standard: NACHA
+- code: R42
+  title: Routing No. / Check Digit Error
+  standard: NACHA
+- code: R43
+  title: Invalid DFI Account No.
+  standard: NACHA
+- code: R44
+  title: Invalid Individual ID No.
+  standard: NACHA
+- code: R45
+  title: Invalid Individual / Company Name
+  standard: NACHA
+- code: R46
+  title: Invalid Representative Payee Indicator
+  standard: NACHA
+- code: R47
+  title: Duplicate Enrollment
+  standard: NACHA
+- code: R50
+  title: State Law Affecting RCK Acceptance
+  standard: NACHA
+- code: R51
+  title: Ineligible / Improper Item Related to RCK
+  standard: NACHA
+- code: R52
+  title: Stop Payment on Item Related to RCK
+  standard: NACHA
+- code: R53
+  title: Item and RCK Presented for Payment
+  standard: NACHA
+- code: R61
+  title: Misrouted Return
+  standard: NACHA
+- code: R62
+  title: Erroneous / Reversing Debit
+  standard: NACHA
+- code: R67
+  title: Duplicate Return
+  standard: NACHA
+- code: R68
+  title: Untimely Return
+  standard: NACHA
+- code: R69
+  title: Field Error
+  standard: NACHA
+- code: R70
+  title: Permissible Return Not Accepted / Not Requested by ODFI
+  standard: NACHA
+- code: R71
+  title: Misrouted Dishonored Return
+  standard: NACHA
+- code: R72
+  title: Untimely Dishonored Return
+  standard: NACHA
+- code: R73
+  title: Timely Original Return
+  standard: NACHA
+- code: R74
+  title: Corrected Return
+  standard: NACHA
+- code: R75
+  title: Return Not Duplicate
+  standard: NACHA
+- code: R76
+  title: No Errors Found
+  standard: NACHA
+- code: R77
+  title: Non-Acceptance of R62
+  standard: NACHA
+- code: R80
+  title: IAT Coding Error
+  standard: NACHA
+- code: R81
+  title: Non-Participant in IAT Program
+  standard: NACHA
+- code: R82
+  title: Invalid Foreign RDFI Identification
+  standard: NACHA
+- code: R83
+  title: Foreign RDFI Unable to Settle
+  standard: NACHA
+- code: R84
+  title: Not Processed by Gateway
+  standard: NACHA
+- code: R85
+  title: Incorrectly Coded Outbound Int’l Payment
+  standard: NACHA
+aeropay_decline_codes:
+- code: AP109
+  meaning: User is suspended from global reputation
+  action: The user should email <support@aeropay.com> to confirm a resolution to enable their account.
+  buyer_message: We've detected delinquent activity on your account. Reach out to <support@aeropay.com>  to reactivate
+    your account.
+- code: AP110
+  meaning: User is missing required info to transact
+  action: Verify user has valid first and last names, email and phone number
+  buyer_message: Your profile is incomplete. Please contact <support@aeropay.com>  to finish setting up before completing
+    this transaction.
+- code: AP114
+  meaning: User is blocked from transacting at this merchant
+  action: Direct the user to contact the merchant to reactivate their account.
+  buyer_message: Your account has been restricted. The activity on the account may have violated the merchant's
+    community standards. Please contact the merchant to reactivate your account.
+- code: AP302
+  meaning: Insufficient Funds
+  action: The user’s current balance does not meet the transaction amount. Pending transactions in the user’s account
+    may be impacting the total available balance. The user must deposit additional funds into their connected account.
+    (This may take 1-2 business days to be reflected)
+  buyer_message: We could not approve your payment. Your available balance might be insufficient for this transaction.
+    Please add more funds to your account or contact support@aeropay.com for more information."\
+- code: AP303
+  meaning: Transaction Missing Location
+  action: The transaction request is missing the location code required to complete the payment. Please reach out
+    to Aeropay for assistance.
+  buyer_message: Transaction missing location.
+- code: AP304
+  meaning: Amount exceeds maximum limit for merchant
+  action: The requested transaction amount exceeds the daily limit on your merchant account. Please reach out to
+    Aeropay for assistance.
+  buyer_message: '''Transaction amount {amount} exceeds limit.'''
+- code: AP305
+  meaning: User is suspended from global reputation
+  action: 'Specific to /payoutTransaction: The user should email support@aeropay.com to confirm a resolution to
+    enable their account.'
+  buyer_message: We've detected delinquent activity on your account. Reach out to support@aeropay.com to reactivate
+    your account."\
+- code: AP306
+  meaning: Balance does not meet requirement
+  action: The user's available bank account balance is insufficient to cover the transaction. The user must deposit
+    additional funds into their connected account. (This may take 1-2 business days to be reflected)
+  buyer_message: \_"We could not approve your payment. Your available balance might be insufficient for this transaction.
+    Please add more funds to your bank account or contact support@aeropay.com for more information".\
+- code: AP307
+  meaning: Transaction Not Approved
+  action: Aeropay’s machine learning model did not approve the transaction after assessing its likelihood to decline.
+    The user may contact the Aeropay Team for a possible override at support@aeropay.com
+  buyer_message: We could not approve your payment. Please try a lower amount or contact your financial institution
+- code: AP308
+  meaning: Invalid amount
+  action: The amount submitted for the transaction does not match a standard monetary format. Please retry the amount
+    with a limit of two decimal places.
+  buyer_message: '''Invalid amount: {reason}'''
+- code: AP310
+  meaning: Credit transaction was declined
+  action: The transaction request was malformed. Please reach out to Aeropay for assistance.
+  buyer_message: We're sorry, your transaction request has been declined.
+- code: AP315
+  meaning: Guardrail reject
+  action: This transaction was rejected by Aeropay's guardrails. Please contact Aeropay for more information.
+  buyer_message: We could not approve your payment. You've reached the permitted threshold or are using a bank that
+    is suspended. Adjust your payment, bank account, or try again later.
+- code: AP400
+  meaning: User has no banks connected and cannot transact
+  action: Connect a bank account for user
+  buyer_message: Connect your bank account to initiate a transaction.
+- code: AP402
+  meaning: Merchant bank account invalid
+  action: Your merchant account may not have a valid bank account. Reach out to your Aeropay representative.
+  buyer_message: No bank account for merchant id {merchant}.
+- code: AP403
+  meaning: Blocked routing number
+  action: The users's bank account has been disabled for security purposes. Try again later.
+  buyer_message: Sorry, your bank is not supported at this time. Please connect to a different account. Questions?
+    Contact<support@aeropay.com> .
+- code: AP404
+  meaning: Routing number provided does not pass validation
+  action: Confirm valid routing number.
+  buyer_message: We could not validate your routing number.
+- code: AP411
+  meaning: Invalid account type
+  action: User may have connected a non-checking account. Ensure checking account is linked.
+  buyer_message: Invalid account connected for processing payments. Please connect a checking account.
+- code: AP412
+  meaning: Bank account has been removed from users account
+  action: Provide valid bankAccountId or remove bankAccountId param and transaction will use user's default bank
+    account
+  buyer_message: This account has already been removed..
+sandbox_triggers:
+  docs: https://dev.aero.inc/docs/testing
+  mechanism: Pass an `exceptionScenario` string in the POST /v2/transaction body in sandbox.
+  return_scenarios:
+  - exceptionScenario: returnInsufficient
+    produces: R01
+    meaning: Insufficient funds decline
+  - exceptionScenario: returnAccount
+    produces: R02
+    meaning: Account issue decline
+  - exceptionScenario: returnDispute
+    produces: R07
+    meaning: Dispute decline
+  rejection_scenarios:
+  - exceptionScenario: delinquent
+    produces: AP109
+    meaning: User rejected for outstanding declined payments or a bad bank account
+  - exceptionScenario: riskEngine
+    produces: AP307
+    meaning: Risk engine rejects the payment
+  - exceptionScenario: balanceInsufficient
+    produces: AP302
+    meaning: User has insufficient funds to cover the total
+  side_effect: Triggering a decline scenario suspends the sandbox user until the payment is resolved from the merchant
+    portal.
+transaction_statuses:
+- portal: Pending
+  internal: pending
+  meaning: Approved and processing. Aeropay guarantees these funds; the merchant may treat them as successful.
+  webhook: transaction_completed
+- portal: Complete
+  internal: processed
+  meaning: Batched and debited successfully.
+  webhook: null
+- portal: Refunded
+  internal: processed
+  meaning: Processed, then reversed by a new merchant-to-user transaction.
+  webhook: transaction_refunded
+- portal: Void
+  internal: void
+  meaning: Stopped before batching; the user account was never debited.
+  webhook: transaction_voided
+- portal: Resolved
+  internal: resolved
+  meaning: Previously declined, then successfully recovered from the user account.
+  webhook: transaction_resolved
+- portal: Declined
+  internal: declined
+  meaning: Resulted in an ACH return. Aeropay recovery attempts to collect.
+  webhook: transaction_declined
+payment_types:
+- paymentType: payment
+  meaning: Consumer debit
+- paymentType: payment+
+  meaning: Consumer debit with a tip
+- paymentType: payout
+  meaning: Consumer credit
+- paymentType: reversal
+  meaning: Consumer credit for a prior debit

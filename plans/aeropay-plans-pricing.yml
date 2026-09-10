@@ -1,0 +1,27 @@
+generated: '2026-09-10'
+method: searched
+source: https://www.aeropay.com/pricing
+plan_count: 0
+published: false
+model: sales-gated
+note: 'Aeropay publishes no pricing. https://www.aeropay.com/pricing returns HTTP 200 but serves the demo
+  request form — the page title is "Aeropay | Schedule a demo" and the body reads "Ready to learn more
+  about Aeropay? Fill in your details below to connect with a pay by bank expert." No tier names, no rates,
+  no per-transaction fee, no minimums and no overage terms appear anywhere on the public site. Sandbox
+  access is on the same gate: Aeropay directs integrators to email support@aeropay.com or book a demo to
+  receive credentials. An honest zero, recorded rather than omitted.'
+fee_signals_visible_in_the_api:
+  note: 'The API does expose fee fields, so fees exist and are per-merchant — they are simply not published.
+    The transaction object carries an `apFee` string (e.g. "0.02") on webhook payloads, and the reference
+    for POST /v2/transaction describes fetching "rewards and fees for merchant" (error AP205 fires when
+    that lookup fails). Tipping is configured per merchant and read via GET /v2/merchant/tipConfiguration.'
+  fields:
+  - apFee
+evidence:
+- url: https://www.aeropay.com/pricing
+  status: 200
+  finding: Serves the "Schedule a demo" contact form; no pricing content.
+- url: https://www.aeropay.com/demo
+  status: 200
+  finding: Identical demo form; /pricing and /demo render the same page.
+plans: []

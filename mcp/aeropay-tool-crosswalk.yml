@@ -1,0 +1,103 @@
+generated: '2026-09-10'
+method: derived
+source: 'Binds the four tools returned by an anonymous tools/list against https://dev.aero.inc/mcp to the
+  operations in the Aeropay v2 OpenAPI document (openapi/aeropay-v2-openapi.yml).'
+note: 'Aeropay ships a SPEC-DRIVEN MCP server, not an operation-per-tool server. None of its four tools
+  maps to a single Aeropay business operation; three are read-only navigators over the OpenAPI document
+  itself and the fourth is a generic HTTP executor that can reach EVERY operation in the contract. The
+  crosswalk therefore records fan-out, not one-to-one binding, and rest_only[] is empty by construction
+  rather than because coverage is complete.'
+surfaces:
+  openapi:
+    file: openapi/aeropay-v2-openapi.yml
+    original: openapi/_original/aeropay-v2-openapi.json
+    source: https://dash.readme.com/api/v1/api-registry/dsdmfqmtkajkc6
+    paths: 26
+    operations: 32
+    gated: false
+    operation_ids_declared: false
+    note: 'The published contract declares NO operationId on any of its 32 operations. Operations are
+      addressed below by METHOD + PATH, and by the ReadMe reference slug (e.g. post_v2-transaction) that
+      Aeropay uses as the stable identifier on its own docs site.'
+  graphql:
+    present: false
+  mcp:
+    url: https://dev.aero.inc/mcp
+    transport: streamable-http
+    gated: false
+    tools: 4
+crosswalk:
+- tool: list-endpoints
+  category: discovery
+  rest: []
+  binding: spec-introspection
+  confidence: high
+  note: 'Reads the OpenAPI document, not the API. Enumerates all 26 paths / 32 operations. No backing
+    Aeropay operation.'
+- tool: get-endpoint
+  category: discovery
+  rest: []
+  binding: spec-introspection
+  confidence: high
+  note: 'Returns the OpenAPI operation object for a given path+method, including servers and security
+    schemes. Note the contract declares components.securitySchemes as an EMPTY object, so this tool
+    cannot report Aeropay''s real bearer-token scheme; that lives only in the prose docs.'
+- tool: search-endpoints
+  category: discovery
+  rest: []
+  binding: spec-introspection
+  confidence: high
+  note: Keyword search across paths, operations and parameters in the OpenAPI document.
+- tool: execute-request
+  category: execution
+  rest:
+  - POST /v2/token
+  - POST /v2/user
+  - GET /v2/user
+  - POST /v2/confirmUser
+  - GET /v2/aggregatorCredentials
+  - POST /v2/linkAccountFromAggregator
+  - PATCH /v2/userBankAccount/{bankAccountId}
+  - GET /v2/bankAccounts
+  - POST /v2/transaction
+  - GET /v2/transaction/{transactionUUID}/refunds
+  - GET /v2/transaction/idempotency/{idempotencyKey}
+  - GET /v2/transaction/{transactionId}
+  - POST /v2/preauthTransaction
+  - GET /v2/preauthTransaction/{preauthTransactionId}
+  - PATCH /v2/preauthTransaction/{preauthTransactionId}
+  - DELETE /v2/preauthTransaction/{preauthTransactionId}
+  - GET /v2/preauthTransactions
+  - POST /v2/capturePreauthTransaction
+  - POST /v2/reverseTransaction
+  - POST /v2/payoutTransaction
+  - POST /v2/transactionSearch
+  - POST /v2/paymentLink
+  - POST /v2/createWebhookSigningKey
+  - POST /v2/webhook
+  - GET /v2/webhook
+  - DELETE /v2/webhook
+  - GET /v2/reports/transactions/CSV
+  - GET /v2/reports/transactions/totals
+  - GET /v2/reports/transactions/batches
+  - GET /v2/merchantReputation
+  - POST /v2/merchantReputation
+  - GET /v2/merchant/tipConfiguration
+  binding: generic-http-executor
+  confidence: high
+  note: 'Fans out to the entire contract. Its inputSchema is a HAR request object (method, url, headers,
+    postData, queryString) — it inherits NO per-operation parameters or requestBody from the OpenAPI, so
+    an agent gets no typed input contract for any Aeropay operation from MCP alone. It must read the
+    OpenAPI via get-endpoint first. This includes irreversible money movement: POST /v2/transaction,
+    POST /v2/payoutTransaction and POST /v2/capturePreauthTransaction are all reachable.'
+mcp_only: []
+rest_only: []
+coverage:
+  tools_listed: 4
+  tools_bound_to_rest: 1
+  tools_spec_introspection_only: 3
+  mcp_only: 0
+  rest_operations_total: 32
+  rest_operations_reachable_via_mcp: 32
+  rest_operations_with_a_dedicated_tool: 0
+  typed_input_schema_inherited: 0

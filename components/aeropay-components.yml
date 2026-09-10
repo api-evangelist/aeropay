@@ -1,0 +1,105 @@
+generated: '2026-09-10'
+method: searched
+source: https://dev.aero.inc/docs/aerosync-implementation-guides
+source_additional:
+- https://dev.aero.inc/docs/npm-sdk
+- https://dev.aero.inc/docs/cdn-v2
+- https://dev.aero.inc/docs/mobile-webview
+- https://dev.aero.inc/docs/aerosync-customizations
+- https://dev.aero.inc/docs/integration-guide
+- https://dev.aero.inc/docs/ux-guidelines
+note: 'Aeropay''s client-side surface is genuinely component-shaped, not SDK-shaped. The loader libraries
+  catalogued in packages/aeropay-packages.yml exist to mount ONE embeddable widget — Aerosync — into a host
+  application. This file describes the rendered surfaces; packages/ describes the distribution.'
+families:
+- family: Aerosync
+  description: 'Aeropay''s branded bank-linking widget. The end user selects their bank, authenticates
+    with the bank (OAuth-first where the bank supports it), and the widget returns a connectionId the
+    integrator attaches with POST /v2/linkAccountFromAggregator. This is the only way a bank account
+    enters the Aeropay system.'
+  docs: https://dev.aero.inc/docs/aerosync-implementation-guides
+  surfaces:
+  - name: Aerosync widget (modal)
+    type: hosted-widget
+    description: The default launch mode — the widget opens over the host page.
+    launch: initAeroSyncWidget()
+    loaders:
+    - aerosync-web-sdk (npm)
+    - https://cdn.sync.aero.inc/2.1.5/aerosync-widget.js (script tag)
+  - name: Embedded Bank View
+    type: embedded-component
+    description: 'Renders the list of Aerosync-supported banks inline in the host page rather than in a
+      modal. Introduced in Aerosync Web SDK v1.1.1.'
+    docs: https://dev.aero.inc/docs/embedded-view
+  - name: Aerosync mobile WebView
+    type: webview
+    description: 'The same widget hosted in a native WebView for mobile apps. The Android, iOS, React
+      Native and Flutter SDKs are all thin wrappers that load this WebView with a token from
+      GET /v2/aggregatorCredentials.'
+    docs: https://dev.aero.inc/docs/mobile-webview
+  configuration:
+    required:
+    - token
+    - elementId
+    - environment
+    - aeroPassUserUuid
+    optional:
+    - configurationId
+    - deeplink
+    - theme
+    - style
+    - handleMFA
+    - connectionId
+    note: 'The v2 SDKs require aeroPassUserUuid (from GET /v2/user). configurationId is the merchant''s
+      branding and behaviour profile and also gates the sandbox OTP bypass.'
+  events:
+  - onSuccess
+  - onClose
+  - onLoad
+  - onEvent
+  - onError
+  event_note: 'From Aerosync Web SDK v2.1.0, onSuccess fires alone after a successful link (onClose no
+    longer fires alongside it) and returns exactly three attributes: connectionId, clientName,
+    aeroPassUserUuid.'
+  customization:
+    docs: https://dev.aero.inc/docs/aerosync-customizations
+    dimensions:
+    - theme (including dark mode)
+    - styling
+    - merchant branding via configurationId
+    ux_guidelines: https://dev.aero.inc/docs/ux-guidelines
+    brand_assets: https://dev.aero.inc/docs/aeropay-assets
+  operational_gate: 'The web widget will not load until an Aeropay Solutions Engineer allowlists the
+    integrator''s origin URLs (protocol + domain, including any custom port). This is a manual,
+    human-in-the-loop step with no self-serve equivalent.'
+- family: Payment Links
+  description: 'A hosted Aeropay-rendered checkout the merchant sends to a user over SMS or email. The
+    integrator builds no UI at all — POST /v2/paymentLink triggers the send.'
+  type: hosted-page
+  operation: POST /v2/paymentLink
+  docs: https://dev.aero.inc/docs/launch-checklist-sdk-payment-links
+  note: One-way. No recall, expiry or revoke operation is published.
+- family: Merchant Portal
+  description: 'Aeropay''s own hosted dashboard. Several settings have NO API equivalent and can only be
+    managed here — tip configuration (readable via GET /v2/merchant/tipConfiguration but writable only in
+    the portal), resolving declined sandbox test payments, and user management.'
+  type: hosted-dashboard
+  production: https://portal.aeropay.com/login
+  sandbox: https://staging-portal.aeropay.com/login
+  docs: https://dev.aero.inc/docs/merchant-portal
+  embeddable: false
+  note: 'Not an embeddable component — listed because it is a required part of the integration surface,
+    and because it is where the write half of several read-only API endpoints lives.'
+demo_repositories:
+- url: https://github.com/Aeropay-inc/sync-demo-web-sdk
+  description: Client demo for Aerosync Web SDK v2.0.4.
+- url: https://github.com/Aeropay-inc/sync-hybrid-demo-app
+  description: Aerosync Hybrid Demo App.
+- url: https://github.com/Aeropay-inc/test-aerosync-capacitor
+  description: Capacitor example; see https://dev.aero.inc/docs/capacitor-aeronetwork.
+summary:
+  component_families: 3
+  embeddable_surfaces: 3
+  headless_alternative: false
+  headless_note: 'There is no headless bank-linking path. Every account link goes through the Aerosync
+    widget, so an integrator cannot collect routing and account numbers directly through the Aeropay API.'

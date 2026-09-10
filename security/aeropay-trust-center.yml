@@ -1,0 +1,54 @@
+generated: '2026-09-10'
+method: searched
+source: https://www.aeropay.com/trust-center
+url: https://www.aeropay.com/trust-center
+published: true
+certifications:
+- name: SOC 2
+  status: compliant
+  cadence: annual independent audit
+  scope: security, availability and confidentiality controls
+  report_available: false
+  report_type_published: false
+  quote: 'Aeropay is SOC 2 compliant, with annual independent audits verifying that our security,
+    availability, and confidentiality controls meet enterprise-grade standards.'
+- name: Nacha ACH Operating Rules
+  status: compliant
+  cadence: annual independent audit of ACH processes
+  scope: ACH operations
+  quote: 'We handle ACH operations in strict compliance with NACHA standards, and undergo annual
+    independent audits of our ACH processes.'
+practices_claimed:
+- OAuth-first bank linking through the Aerosync widget
+- FDX-style normalization of bank data
+not_claimed:
+- PCI DSS
+- ISO/IEC 27001
+- HIPAA
+- FedRAMP
+- GDPR certification
+third_party_trust_portal:
+  present: false
+  note: 'No Vanta, Drata, SafeBase or Conveyor trust portal is linked; the trust center is a marketing page
+    on the Webflow site, not a document exchange. No SOC 2 report, penetration-test summary, subprocessor
+    list or security questionnaire is downloadable, and there is no gated request form for one.'
+vulnerability_disclosure:
+  present: false
+  note: 'The trust center names no vulnerability disclosure policy, responsible disclosure process, bug
+    bounty program or security contact address. No /.well-known/security.txt is served on any Aeropay host
+    (well-known/aeropay-well-known.yml). probe-security-programs.py returned vdp=none. A researcher who
+    finds a flaw in a live payments network has no published channel to report it. NO type: Security
+    pointer is emitted in apis.yml because no disclosure program exists to point at.'
+jurisdiction:
+  countries:
+  - US
+  note: Aeropay states it currently supports U.S. bank accounts only.
+legal:
+  privacy_policy: https://www.aeropay.com/legal/privacy-policy
+  terms_merchant: https://www.aeropay.com/legal/terms-of-service
+  terms_end_user: https://www.aeropay.com/legal/terms-of-service---end-user
+evidence:
+- url: https://www.aeropay.com/trust-center
+  status: 200
+- url: https://www.aeropay.com/.well-known/security.txt
+  status: 404

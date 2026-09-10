@@ -1,0 +1,128 @@
+generated: '2026-09-10'
+method: searched
+source:
+- https://www.aeropay.com/trust-center
+- https://dev.aero.inc/docs/transaction-status
+- https://dev.aero.inc/docs/webhooks-1
+- openapi/aeropay-v2-openapi.yml
+standards:
+- id: nacha-ach
+  name: Nacha ACH Operating Rules
+  conforms: true
+  domain_standard: true
+  sector: payments
+  evidence: 'Aeropay states on its trust center: "We handle ACH operations in strict compliance with NACHA
+    standards, and undergo annual independent audits of our ACH processes." The CONTRACT carries the
+    signature independently of the marketing claim: the transaction-status reference publishes the full
+    70-entry NACHA R-code registry as the return-code glossary for declined transactions, and the
+    `returnCode` / `scenarioReturnCode` fields carry those codes on the wire. See
+    errors/aeropay-decline-codes.yml.'
+  evidence_url: https://dev.aero.inc/docs/transaction-status
+- id: soc2
+  name: SOC 2
+  conforms: true
+  evidence: '"Aeropay is SOC 2 compliant, with annual independent audits verifying that our security,
+    availability, and confidentiality controls meet enterprise-grade standards." No report type (Type I
+    vs Type II) or audit period is published, and no report is downloadable.'
+  evidence_url: https://www.aeropay.com/trust-center
+- id: rtp-tch
+  name: RTP / Request for Payment (The Clearing House real-time rails)
+  conforms: true
+  evidence: 'The webhook topic table declares three payment rails per topic — ACH, RfP and RTP — and the
+    transaction object carries an `isRtp` boolean. A dedicated Request for Payment transaction guide is
+    published at https://dev.aero.inc/docs/request-for-payment-transaction. Error AP1305 ("RTP transaction
+    cannot be voided - schedule a refund") shows the rail distinction is enforced in the contract.'
+  evidence_url: https://dev.aero.inc/docs/webhooks-1
+- id: fdx
+  name: FDX (Financial Data Exchange)
+  conforms: false
+  partial: true
+  evidence: 'The trust center references "FDX-style normalization" of bank data — a stylistic alignment
+    claim, not a conformance claim. Aeropay publishes no FDX API surface, no FDX resource shapes and no
+    certification. Recorded as NOT conforming so the softer claim is not credited as adoption.'
+  evidence_url: https://www.aeropay.com/trust-center
+- id: oauth2
+  name: OAuth 2.0
+  conforms: false
+  evidence: 'The OpenAPI declares an EMPTY components.securitySchemes object; there is no oauth2 scheme,
+    no authorization endpoint and no token-scope string. Aeropay''s own "scopes" (merchant /
+    userForMerchant) are an actor selector on a credentials-exchange endpoint, not OAuth scopes. Aeropay
+    describes Aerosync as "OAuth-first bank linking", but that OAuth is between the END USER and THEIR
+    BANK inside the widget — it is not an authorization model this API exposes to integrators.'
+- id: oidc
+  name: OpenID Connect
+  conforms: false
+  evidence: No openIdConnect security scheme and no /.well-known/openid-configuration on any Aeropay host (well-known/aeropay-well-known.yml).
+- id: rfc9457-problem-details
+  name: RFC 9457 Problem Details for HTTP APIs
+  conforms: false
+  evidence: 'No response in the contract uses application/problem+json. Errors use two bespoke JSON
+    envelopes and are predominantly returned inside an HTTP 200. See conventions/aeropay-conventions.yml.'
+- id: idempotency-key-header
+  name: Idempotency-Key request header (draft-ietf-httpapi-idempotency-key-header)
+  conforms: true
+  partial: true
+  evidence: 'The Idempotency-Key header is declared on 4 of 16 mutating operations, with documented
+    replay semantics, a 1-day retention window and a dedicated lookup operation
+    (GET /v2/transaction/idempotency/{idempotencyKey}). Conformance is partial by coverage, not by
+    mechanism. See conventions/aeropay-conventions.yml.'
+- id: rfc9116-security-txt
+  name: RFC 9116 security.txt
+  conforms: false
+  evidence: 'Probed on all eight Aeropay hosts; 404 or 403 everywhere. See well-known/aeropay-well-known.yml.'
+- id: rfc8594-sunset-header
+  name: RFC 8594 Sunset header
+  conforms: false
+  evidence: No Sunset or Deprecation header is documented and no deprecation policy is published.
+- id: asyncapi
+  name: AsyncAPI
+  conforms: false
+  evidence: 'Aeropay documents a nine-topic webhook surface in prose and tables but publishes no AsyncAPI
+    document at any location probed. asyncapi/aeropay-webhooks-asyncapi.yml is a DERIVED description of
+    the documented catalog, not a provider-published contract.'
+- id: mcp
+  name: Model Context Protocol
+  conforms: true
+  evidence: 'A remote MCP server is hosted at https://dev.aero.inc/mcp and answers an anonymous
+    tools/list with four tools. Probed 2026-09-10, HTTP 200, text/event-stream. See mcp/aeropay-mcp.yml.'
+  evidence_url: https://dev.aero.inc/docs/mcp
+- id: a2a-agent-card
+  name: A2A Agent Card
+  conforms: false
+  evidence: '/.well-known/agent-card.json and /.well-known/agent.json probed on all eight hosts; no hit.'
+- id: pagination
+  name: Documented pagination
+  conforms: true
+  partial: true
+  evidence: 'Page-number pagination (page, perPage, sortBy, orderBy, a `paging` response object) on
+    POST /v2/transactionSearch only. Every other collection operation is unpaginated.'
+- id: webhook-signing
+  name: Signed webhook delivery
+  conforms: true
+  evidence: 'Aeropay publishes a webhook signing key operation (POST /v2/createWebhookSigningKey) and a
+    dedicated webhook security guide at https://dev.aero.inc/docs/webhook-security, plus documented
+    outbound IP ranges to allowlist for sandbox and production.'
+  evidence_url: https://dev.aero.inc/docs/webhook-security
+- id: pci-dss
+  name: PCI DSS
+  conforms: false
+  evidence: 'Not claimed anywhere on the trust center. Aeropay is a bank-transfer network and does not
+    handle card data, so PCI DSS is not the applicable regime — recorded as not-claimed rather than as a gap.'
+- id: iso27001
+  name: ISO/IEC 27001
+  conforms: false
+  evidence: Not claimed on the trust center or anywhere on the public site.
+compliance_program:
+  published: true
+  url: https://www.aeropay.com/trust-center
+  certifications:
+  - SOC 2
+  - Nacha ACH annual independent audit
+  jurisdiction: United States only — Aeropay states it currently supports U.S. bank accounts.
+summary:
+  conforms_count: 7
+  domain_standard_detected: nacha-ach
+  note: 'The strongest conformance signal here is the domain standard: a buyer who already speaks NACHA
+    R-codes integrates Aeropay''s decline handling with no bespoke mapping table. The weakest area is the
+    cross-cutting HTTP surface — no RFC 9457, no OAuth, no security.txt, no Sunset header, and errors
+    returned inside HTTP 200.'

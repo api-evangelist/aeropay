@@ -1,0 +1,282 @@
+asyncapi: 2.6.0
+x-apievangelist:
+  generated: '2026-09-10'
+  method: derived
+  source: https://dev.aero.inc/docs/webhooks-1
+  provenance: 'DERIVED from Aeropay''s published webhook documentation. Aeropay does NOT publish an
+    AsyncAPI document — none was found at /asyncapi.yaml, /asyncapi.json, in the docs index at
+    https://dev.aero.inc/llms.txt, or in the Aeropay-inc GitHub organisation. The nine channels, their
+    rails and their payload shapes below are transcribed from the topic table and the worked payload
+    example on the webhooks page; message schemas are described only to the depth Aeropay documents them
+    and are not invented beyond it.'
+  not_provider_published: true
+info:
+  title: Aeropay Webhooks
+  version: '2.0'
+  description: >-
+    Aeropay delivers transaction and user lifecycle events to a merchant-registered callback URL over
+    HTTPS POST. A subscription is created with POST /v2/webhook by naming a topic and a url; the same
+    call updates an existing subscription for that topic. Payloads carry a payloadVersion of "2.0".
+    Aeropay retries an undelivered event up to five times with exponential backoff and jitter when the
+    callback fails to answer HTTP 200 within 3000ms.
+  contact:
+    name: Aeropay Support
+    url: https://dev.aero.inc/docs/webhooks-1
+    email: support@aeropay.com
+externalDocs:
+  description: Aeropay Webhooks documentation
+  url: https://dev.aero.inc/docs/webhooks-1
+defaultContentType: application/json
+servers:
+  production:
+    url: api.aeropay.com
+    protocol: https
+    description: 'Subscribe with POST https://api.aeropay.com/v2/webhook. Aeropay delivers from source IPs 54.237.135.163 and 54.81.239.48.'
+  sandbox:
+    url: api.sandbox-pay.aero.inc
+    protocol: https
+    description: 'Subscribe with POST https://api.sandbox-pay.aero.inc/v2/webhook. Aeropay delivers from source IPs 3.223.196.167 and 34.235.82.59.'
+channels:
+  transaction_completed:
+    description: 'Sent when the transaction is approved by Aeropay. Approved transactions batch and settle at the next batch window (under 24 hours); the transaction stays in "pending" status until 3 business days after creation. Rails: ACH, RfP, RTP.'
+    subscribe:
+      operationId: onTransactionCompleted
+      message:
+        $ref: '#/components/messages/TransactionEvent'
+  transaction_voided:
+    description: 'Sent when the transaction is voided — stopped before batching, so no money moved in either direction. Rails: ACH, RfP, RTP.'
+    subscribe:
+      operationId: onTransactionVoided
+      message:
+        $ref: '#/components/messages/TransactionEvent'
+  transaction_refunded:
+    description: 'Sent when the transaction is refunded. Not sent when a transaction is voided or partially voided before batching — see transaction_voided. The data object carries a refundTransaction array of reversals that already have a reversal transaction, and a queuedRefunds array of reversals still queued or abandoned; both arrays are always present and empty when not applicable. Rails: ACH, RfP, RTP.'
+    subscribe:
+      operationId: onTransactionRefunded
+      message:
+        $ref: '#/components/messages/TransactionRefundedEvent'
+  transaction_declined:
+    description: 'Sent when the transaction declines. Carries the NACHA ACH return code for the decline — see errors/aeropay-decline-codes.yml. Rails: ACH, RfP, RTP.'
+    subscribe:
+      operationId: onTransactionDeclined
+      message:
+        $ref: '#/components/messages/TransactionEvent'
+  transaction_resolved:
+    description: 'Sent when a previously declined transaction (an ACH return) has been successfully resolved, whether through Aeropay''s automated retry pipeline or another resolution path such as manual recovery or an offsetting transaction. Aeropay re-delivers the merchant''s ORIGINAL declined transaction rather than a new opaque one, using the same payload shape as transaction_completed and transaction_declined, one message per resolved transaction, grouped per merchant. Rail: ACH.'
+    subscribe:
+      operationId: onTransactionResolved
+      message:
+        $ref: '#/components/messages/TransactionEvent'
+  preauthorized_transaction_created:
+    description: 'Sent when a preauthorized transaction is created. Rail: ACH.'
+    subscribe:
+      operationId: onPreauthorizedTransactionCreated
+      message:
+        $ref: '#/components/messages/PreauthTransactionEvent'
+  user_suspended:
+    description: Sent when a user is suspended. Payload carries a userId.
+    subscribe:
+      operationId: onUserSuspended
+      message:
+        $ref: '#/components/messages/UserEvent'
+  user_active:
+    description: Sent when a previously suspended user has been reactivated. Payload carries a userId.
+    subscribe:
+      operationId: onUserActive
+      message:
+        $ref: '#/components/messages/UserEvent'
+  merchant_reputation_updated:
+    description: Sent after a successful call to POST /v2/merchantReputation, carrying the users whose reputations changed.
+    subscribe:
+      operationId: onMerchantReputationUpdated
+      message:
+        $ref: '#/components/messages/MerchantReputationEvent'
+components:
+  messages:
+    TransactionEvent:
+      name: TransactionEvent
+      title: Transaction lifecycle event
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          topic:
+            type: string
+          payloadVersion:
+            type: string
+            example: '2.0'
+          date:
+            type: string
+            example: '2026-01-23 18:53:13'
+          data:
+            $ref: '#/components/schemas/Transaction'
+      examples:
+        - name: transaction_completed
+          payload:
+            topic: transaction_completed
+            data:
+              id: b1ebceb4-74f3-4702-928f-df655798084f
+              amount:
+                amount: 123
+                currency: USD
+              status: pending
+              paymentType: payment
+              userId: 0908b07b-01a3-4226-b48a-44c0984b2906
+              title: Online Transaction
+              referenceId: newReferenceID-TestinMatt21
+              apFee: '0.02'
+              createdDate: '2026-01-23T18:53:03+00:00'
+              isRtp: false
+              merchantId: 582
+              locationId: 541
+              userAccountId: 192637
+              merchantUserReputation: standard
+            payloadVersion: '2.0'
+            date: '2026-01-23 18:53:13'
+    TransactionRefundedEvent:
+      name: TransactionRefundedEvent
+      title: Transaction refunded event
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          topic:
+            type: string
+            example: transaction_refunded
+          payloadVersion:
+            type: string
+          date:
+            type: string
+          data:
+            type: object
+            properties:
+              transaction:
+                $ref: '#/components/schemas/Transaction'
+              refundTransaction:
+                type: array
+                description: Reversals that already have a reversal transaction created.
+                items:
+                  type: object
+              queuedRefunds:
+                type: array
+                description: Reversals requested but not yet processed; each item's status is queued or abandoned.
+                items:
+                  type: object
+      description: 'On this topic only, merchantUserReputation appears at data.transaction.merchantUserReputation rather than at the top level of data, and is not included on refundTransaction or queuedRefunds entries.'
+    PreauthTransactionEvent:
+      name: PreauthTransactionEvent
+      title: Preauthorized transaction created
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          topic:
+            type: string
+            example: preauthorized_transaction_created
+          payloadVersion:
+            type: string
+          date:
+            type: string
+          data:
+            $ref: '#/components/schemas/Transaction'
+    UserEvent:
+      name: UserEvent
+      title: User status event
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          topic:
+            type: string
+          payloadVersion:
+            type: string
+          date:
+            type: string
+          data:
+            type: object
+            properties:
+              userId:
+                type: string
+                format: uuid
+    MerchantReputationEvent:
+      name: MerchantReputationEvent
+      title: Merchant reputation updated
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          topic:
+            type: string
+            example: merchant_reputation_updated
+          payloadVersion:
+            type: string
+          date:
+            type: string
+          data:
+            type: object
+            description: The users whose reputations were updated by POST /v2/merchantReputation.
+  schemas:
+    Transaction:
+      type: object
+      description: 'The Aeropay transaction object as delivered on a webhook. Field set transcribed from the worked example Aeropay publishes; it is not an exhaustive schema and Aeropay publishes none.'
+      properties:
+        id:
+          type: string
+          format: uuid
+        amount:
+          type: object
+          properties:
+            amount:
+              type: integer
+              description: Integer minor units. 123 is $1.23.
+            currency:
+              type: string
+              example: USD
+        status:
+          type: string
+          enum: [pending, processed, void, resolved, declined]
+        paymentType:
+          type: string
+          enum: [payment, payment+, payout, reversal]
+        userId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        referenceId:
+          type: string
+          description: The merchant's own reference for the transaction.
+        apFee:
+          type: string
+        createdDate:
+          type: string
+          format: date-time
+        isRtp:
+          type: boolean
+        merchantId:
+          type: integer
+        locationId:
+          type: integer
+        userAccountId:
+          type: integer
+        merchantUserReputation:
+          type: string
+          enum: [standard, vip, blocked]
+          description: 'Present on payloadVersion 2.0. Null when the source reputation status is missing or unrecognized.'
+x-delivery:
+  retries: 5
+  strategy: exponential backoff with jitter
+  retry_triggers:
+    - Callback URL fails to respond within 3000ms
+    - Callback URL fails to respond with a 200 status code
+  outage_handling: 'For a major outage on the integrator side, Aeropay directs the merchant to their dedicated CSM to handle missed events. There is no self-serve event replay API.'
+  security: https://dev.aero.inc/docs/webhook-security
+  signing_key_operation: POST /v2/createWebhookSigningKey
+  source_ips:
+    sandbox: [3.223.196.167, 34.235.82.59]
+    production: [54.237.135.163, 54.81.239.48]
+x-management-operations:
+  subscribe: POST /v2/webhook
+  read: GET /v2/webhook
+  delete: DELETE /v2/webhook
+  create_signing_key: POST /v2/createWebhookSigningKey
