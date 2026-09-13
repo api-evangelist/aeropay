@@ -6,11 +6,16 @@ deployment:
   mode: remote
   endpoint: https://dev.aero.inc/mcp
   auth: none
-  auth_note: 'tools/list answers anonymously. The execute-request tool calls the live Aeropay API, so the
+  auth_note: tools/list answers anonymously. The execute-request tool calls the live Aeropay API, so the
     caller supplies their own Aeropay bearer token as a header on the HAR request; the MCP server itself
     holds no Aeropay credential. Aeropay documents this as "If your APIs require authentication, you can
-    pass in headers via query parameters or however headers are configured in your MCP client."'
+    pass in headers via query parameters or however headers are configured in your MCP client."
   verified: probed
+  probe_prior: (never probed)
+  probe: live
+  probe_why: live
+  checked: '2026-09-11'
+  source: claimed-backlog re-probe 2026-09-11
 server:
   name: api-aeropay
   transport: http
@@ -20,9 +25,9 @@ server:
   - Cursor
   - Windsurf
   - Claude Desktop
-  implementation: 'Spec-driven MCP server generated from the Aeropay v2 OpenAPI document by the ReadMe
+  implementation: Spec-driven MCP server generated from the Aeropay v2 OpenAPI document by the ReadMe
     documentation platform that hosts dev.aero.inc. The tools are generic OpenAPI navigators, not one
-    tool per Aeropay operation.'
+    tool per Aeropay operation.
 tools:
 - name: list-endpoints
   title: List API Endpoints
@@ -51,14 +56,14 @@ tools:
   input_required:
   - harRequest
   read_only: false
-  note: 'This is the only write-capable tool and it is a generic HTTP executor — it can issue any Aeropay
-    v2 call, including POST /v2/transaction and POST /v2/payoutTransaction, when given a token. Treat it
-    as an unscoped money-movement surface.'
+  note: This is the only write-capable tool and it is a generic HTTP executor — it can issue any Aeropay
+    v2 call, including POST /v2/transaction and POST /v2/payoutTransaction, when given a token. Treat
+    it as an unscoped money-movement surface.
 raw_tools_list: mcp/aeropay-mcp-tools.json
 x-evidence:
   fetched: '2026-09-10'
   url: https://dev.aero.inc/mcp
-  method: 'POST {"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+  method: POST {"jsonrpc":"2.0","id":1,"method":"tools/list"}
   http_status: 200
   content_type: text/event-stream
   tool_count: 4
