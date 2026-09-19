@@ -20,6 +20,9 @@ specificationVersion: '0.20'
 created: '2026-09-10'
 modified: '2026-09-10'
 position: Producing
+x-docs-platform: readme
+x-docs-platform-confidence: high
+x-docs-platform-checked: 2026-09-17
 tags:
 - Payments
 - Pay by Bank
@@ -277,6 +280,8 @@ apis:
   humanURL: https://dev.aero.inc/docs/getting-started
   baseURL: https://api.aeropay.com/v2
   tags:
+  - Webhook
+  tags_raw:
   - Webhooks
   properties:
   - type: OpenAPI
