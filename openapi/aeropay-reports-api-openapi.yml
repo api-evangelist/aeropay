@@ -1,0 +1,423 @@
+openapi: 3.2.0
+info:
+  title: Aeropay v2 Reports API
+  version: 1.0.0
+  description: '# Introduction
+
+
+    Welcome to the Aeropay developer API documentation.'
+servers:
+- url: https://api.sandbox-pay.aero.inc
+  variables: {}
+tags:
+- name: Reports
+paths:
+  /v2/reports/transactions/CSV:
+    parameters: []
+    get:
+      summary: Transactions CSV
+      description: Fetch and return the transactions for a specified merchant, delivered in a CSV file.
+      tags:
+      - Reports
+      parameters:
+      - name: merchantId
+        in: query
+        required: false
+        description: Unique identifier for the merchant.
+        example: '{{mainMerchantId}}'
+        schema:
+          type: string
+      - name: timezone
+        in: query
+        required: false
+        description: Timezone for the report data.
+        example: America/Chicago
+        schema:
+          type: string
+      - name: gmtOffset
+        in: query
+        required: false
+        description: GMT Offset for the report data.
+        example: -5
+        schema:
+          type: integer
+      - name: page
+        in: query
+        required: false
+        description: Page number for pagination.
+        example: '1'
+        schema:
+          type: integer
+      - name: size
+        in: query
+        required: false
+        description: Number of records per page.
+        example: '100'
+        schema:
+          type: integer
+      - name: refunds
+        in: query
+        required: false
+        description: Include refunded transactions in the report.
+        example: 'true'
+        schema:
+          type: boolean
+      - name: voids
+        in: query
+        required: false
+        description: Include voided transactions in the report.
+        example: 'true'
+        schema:
+          type: boolean
+      - name: version
+        in: query
+        required: false
+        description: Report version.
+        example: '1.0'
+        schema:
+          type: string
+      - name: email
+        in: query
+        required: false
+        description: Email address to receive the CSV file.
+        example: test.test@gmail.com
+        schema:
+          type: string
+      - name: dateBegin
+        in: query
+        required: false
+        description: Start date for the report filter (MM-DD-YYYY).
+        example: 6-25-2020
+        schema:
+          type: string
+      - name: dateEnd
+        in: query
+        required: false
+        description: End date for the report filter (MM-DD-YYYY).
+        example: 12-14-2019
+        schema:
+          type: string
+      - name: authorization
+        in: header
+        required: true
+        description: Merchant scoped token (V2).
+        example: Bearer {{merchantScopedToken}}
+        schema:
+          type: string
+      - name: Content-Type
+        in: header
+        required: true
+        example: application/json
+        schema:
+          type: string
+      - name: Accept
+        in: header
+        required: false
+        example: application/json
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success - CSV Request Queued
+          headers:
+            Date:
+              schema:
+                type: string
+              example: Fri, 02 Jan 2026 15:10:45 GMT
+            Content-Type:
+              schema:
+                type: string
+              example: application/json
+          content:
+            application/json:
+              schema:
+                title: Transaction Total CSV Response
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    description: CSV creation process started successfully.
+              examples:
+                Success_V2:
+                  summary: Success Call - V2
+                  value:
+                    success: true
+                    message: CSV creation request successful
+      operationId: getV2ReportsTransactionsCSV
+      x-operation-id-source: derived
+  /v2/reports/transactions/totals:
+    parameters: []
+    get:
+      summary: Transactions Totals
+      description: Fetch and return a summary of the transaction totals for the specified merchant.
+      tags:
+      - Reports
+      parameters:
+      - name: merchantId
+        in: query
+        required: false
+        description: Unique identifier for the merchant.
+        example: '{{mainMerchantId}}'
+        schema:
+          type: string
+      - name: dateBegin
+        in: query
+        required: false
+        description: Start date for filtering totals (MM-DD-YYYY).
+        example: 02-02-2021
+        schema:
+          type: string
+      - name: dateEnd
+        in: query
+        required: false
+        description: End date for filtering totals (MM-DD-YYYY).
+        example: 11-23-2026
+        schema:
+          type: string
+      - name: timezone
+        in: query
+        required: false
+        description: Timezone for the date filters.
+        example: America/Chicago
+        schema:
+          type: string
+      - name: authorization
+        in: header
+        required: true
+        description: Merchant scoped token (V2).
+        example: Bearer {{merchantScopedToken}}
+        schema:
+          type: string
+      - name: Accept
+        in: header
+        required: false
+        example: application/json
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success - Totals Generated or Business Error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/transactionTotals'
+                - $ref: '#/components/schemas/200failure'
+              examples:
+                Success_V2:
+                  summary: Success Call - V2
+                  value:
+                    chargeTotal: 2,924,567.05
+                    tipTotal: 1,735.70
+                    feeTotal: 29,559.03
+                    rewardsTotal: '617.35'
+                    payoutsTotal: 47,315.92
+                    refundsTotal: 532,444.82
+                    netTotal: 2,314,629.93
+                    returns:
+                      payoutReturnsTotal: '189.00'
+                Success_Zero:
+                  summary: Success - Zero transactions
+                  value:
+                    chargeTotal: '0.00'
+                    tipTotal: '0.00'
+                    feeTotal: '0'
+                    rewardsTotal: '0.00'
+                    payoutsTotal: '0.00'
+                    refundsTotal: '0.00'
+                    netTotal: '0.00'
+                    returns:
+                      payoutReturnsTotal: '0.00'
+                Fail_Internal:
+                  summary: Fail - Error generating totals
+                  value:
+                    error: Error generating totals
+      operationId: getV2ReportsTransactionsTotals
+      x-operation-id-source: derived
+  /v2/reports/transactions/batches:
+    parameters: []
+    get:
+      summary: Merchant Batch Balance
+      description: Fetch the ACH batches and their associated transactions for the specified time range.
+      tags:
+      - Reports
+      parameters:
+      - name: merchantId
+        in: query
+        required: false
+        description: Unique merchant ID to filter batches.
+        example: '{{mainMerchantId}}'
+        schema:
+          type: string
+      - name: dateBegin
+        in: query
+        required: false
+        description: Start date for the report filter (MM-DD-YYYY).
+        example: 02-02-2021
+        schema:
+          type: string
+      - name: dateEnd
+        in: query
+        required: false
+        description: End date for the report filter (MM-DD-YYYY).
+        example: 11-23-2026
+        schema:
+          type: string
+      - name: timezone
+        in: query
+        required: false
+        description: Time zone for date filters.
+        example: America/Chicago
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        description: Page number for paginated results.
+        example: 1
+        schema:
+          type: integer
+      - name: size
+        in: query
+        required: false
+        description: Page size.
+        example: 100
+        schema:
+          type: integer
+      - name: Accept
+        in: header
+        required: false
+        example: application/json
+        schema:
+          type: string
+      - name: authorization
+        in: header
+        required: true
+        description: Merchant token with Bearer prefix.
+        example: Bearer {{merchantScopedToken}}
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful response - Batch list retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        batchId:
+                          type: integer
+                        batchDate:
+                          type: string
+                          format: date-time
+                        transactions:
+                          type: array
+                          items:
+                            type: object
+                  paging:
+                    type: object
+                    properties:
+                      totalItems:
+                        type: integer
+                      totalPages:
+                        type: integer
+                      currentPage:
+                        type: integer
+                      itemsPerPage:
+                        type: integer
+              examples:
+                Success_V2:
+                  summary: Success Call - V2
+                  value:
+                    data:
+                    - batchId: 13374
+                      batchDate: '2025-12-11T02:00:49-06:00'
+                      transactions:
+                      - uuid: 836bbf98-9fa8-11f0-80bc-12d4b68c7db9
+                        amount:
+                          amount: 3446598
+                          currency: USD
+                        direction: credit
+                      - uuid: 8370be5d-9fa8-11f0-80bc-12d4b68c7db9
+                        amount:
+                          amount: 9032
+                          currency: USD
+                        direction: debit
+                    - batchId: 13319
+                      batchDate: '2025-12-09T02:00:49-06:00'
+                      transactions: []
+                    paging:
+                      totalItems: 452
+                      totalPages: 23
+                      currentPage: 1
+                      itemsPerPage: 2
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                error:
+                  code: AP008
+                  message: Invalid token.
+      operationId: getV2ReportsTransactionsBatches
+      x-operation-id-source: derived
+components:
+  schemas:
+    transactionTotals:
+      title: transactionTotals Response
+      type: object
+      properties:
+        chargeTotal:
+          type: string
+          description: Payment total
+        tipTotal:
+          type: string
+          description: Tips total
+        feeTotal:
+          type: string
+          description: Fee total
+        rewardsTotal:
+          type: string
+          description: Rewards total
+        payoutsTotal:
+          type: string
+          description: Payout payment total
+        refundsTotal:
+          type: string
+          description: Refund total
+        netTotal:
+          type: string
+          description: Net total of above fields
+        returns:
+          type: object
+          description: ACH returns object
+          properties:
+            payoutReturnsTotal:
+              type: string
+              description: Payout returns total
+    200failure:
+      title: Failure Response
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            help:
+              type: string
+              description: Support contact information
+      example:
+        error:
+          help: Contact support@aeropay.com for help.
+          code: AP700
+          message: 'Missing required Parameter: ''email'''

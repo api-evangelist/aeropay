@@ -1,0 +1,474 @@
+openapi: 3.2.0
+info:
+  title: Aeropay v2 Webhooks API
+  version: 1.0.0
+  description: '# Introduction
+
+
+    Welcome to the Aeropay developer API documentation.'
+servers:
+- url: https://api.sandbox-pay.aero.inc
+  variables: {}
+tags:
+- name: Webhooks
+paths:
+  /v2/createWebhookSigningKey:
+    parameters: []
+    post:
+      summary: createWebhookSigningKey
+      description: 'Create a webhook.
+
+
+        Specify a topic and a url. Use this call to either create or update a webhook for a topic.
+
+
+        Error Glossary (click to expand)
+
+
+        | Code | HTTP Status | Message |
+
+        |------|-------------|-------------|
+
+        | `AP009` | 401 | Unauthorized |
+
+        | `AP101` | 401 | No authenticated user |
+
+        | `AP1000` | 200 | Invalid API |
+
+        | `AP1107` | 400 | Merchant is required |'
+      tags:
+      - Webhooks
+      parameters:
+      - name: Content-Type
+        in: header
+        required: true
+        example: application/json
+        schema:
+          type: string
+      - name: authorization
+        in: header
+        required: true
+        description: A merchant scoped token.
+        example: Bearer {{merchantScopedToken}}
+        schema:
+          type: string
+      requestBody:
+        description: Payload to create a signing key for webhook validation. Optionally includes the topic and URL for the webhook subscription.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                topic:
+                  type: string
+                  description: The event topic to subscribe to.
+                  example: transaction_completed
+                url:
+                  type: string
+                  description: The destination URL where webhooks will be sent.
+                  example: https://webhook.site/9374cfe2-8535-44ec-86d6-20e949fd7919
+            example:
+              topic: transaction_completed
+              url: https://webhook.site/9374cfe2-8535-44ec-86d6-20e949fd7919
+        required: false
+      responses:
+        '200':
+          description: Successful Response - Signing Key Created
+          headers:
+            Date:
+              schema:
+                type: string
+              example: Wed, 27 Aug 2025 13:10:45 GMT
+            Content-Type:
+              schema:
+                type: string
+              example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  signingKey:
+                    type: string
+              examples:
+                Success_V2:
+                  summary: Success - V2 Response
+                  value:
+                    message: This is your signingKey used to validate any Webhooks you are subscribed to. Please store this key for future use, as it will not be displayed at any point afterwards.
+                    signingKey: cb5e9c4c4d7bd733a16a41da9f34a9ebdc47bee4dc1ab19e....
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                Fail_Unauthorized:
+                  summary: Fail - Unauthorized
+                  value:
+                    error:
+                      code: AP008
+                      message: Invalid token.
+      operationId: postV2CreateWebhookSigningKey
+      x-operation-id-source: derived
+  /v2/webhook:
+    parameters: []
+    post:
+      summary: webhook
+      description: 'Create a webhook.
+
+
+        Specify a topic and a url. Use this call to either create or update a webhook for a topic.
+
+
+        Error Glossary (click to expand)
+
+
+        | Code | HTTP Status | Message |
+
+        |------|-------------|-------------|
+
+        | `AP009` | 401 | Unauthorized |
+
+        | `AP101` | 401 | No authenticated user |
+
+        | `AP1000` | 200 | Invalid API |
+
+        | `AP1102` | 400 | Topic required to create webhook |
+
+        | `AP1103` | 400 | URL is invalid or missing |
+
+        | `AP1104` | 400 | Unrecognized topic |
+
+        | `AP1105` | 200 | Error creating webhook |
+
+        | `AP1107` | 400 | Merchant is required |'
+      tags:
+      - Webhooks
+      parameters:
+      - name: Content-Type
+        in: header
+        required: true
+        example: application/json
+        schema:
+          type: string
+      - name: authorization
+        in: header
+        required: true
+        description: A merchant scoped token.
+        example: Bearer {{merchantScopedToken}}
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - topic
+              - url
+              properties:
+                topic:
+                  type: string
+                  description: Webhook topic to subscribe to
+                  enum:
+                  - transaction_completed
+                  - transaction_refunded
+                  - transaction_voided
+                  - preauthorized_transaction_created
+                  - transaction_declined
+                  - transaction_resolved
+                  - user_active
+                  - user_suspended
+                  - merchant_reputation_updated
+                url:
+                  type: string
+                  description: Callback URL where webhook payloads will be sent.
+            example:
+              topic: transaction_completed
+              url: https://www.test.com/webhook/test_for_v2
+        required: true
+      responses:
+        '200':
+          description: Success - Webhook Subscribed
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/webhookPostResponse'
+                - $ref: '#/components/schemas/200failure'
+              examples:
+                Success_V2:
+                  summary: Success - V2 Response
+                  value:
+                    webhooks:
+                      id: 12975
+                      payloadVersion: '2.0'
+                      topic: transaction_completed
+                      url: https://www.test.com/webhook/test_for_v2
+        '400':
+          description: Bad Request - Validation Errors
+          content:
+            application/json:
+              examples:
+                Error_Missing_Url:
+                  summary: Fail - Missing url
+                  value:
+                    error:
+                      code: AP1103
+                      message: Url is invalid or missing
+                Error_Invalid_Topic:
+                  summary: Fail - Unrecognized topic
+                  value:
+                    error:
+                      code: AP1104
+                      message: Unrecognized topic
+      operationId: postV2Webhook
+      x-operation-id-source: derived
+    get:
+      summary: webhook
+      description: 'Fetch webhook for the specified topic.
+
+
+        Error Glossary (click to expand)
+
+
+        | Code | HTTP Status | Message |
+
+        |------|-------------|-------------|
+
+        | `AP009` | 401 | Unauthorized |
+
+        | `AP101` | 401 | No authenticated user |
+
+        | `AP1000` | 200 | Invalid API |
+
+        | `AP1101` | 200 | Error fetching webhook |
+
+        | `AP1107` | 400 | Merchant is required |'
+      tags:
+      - Webhooks
+      parameters:
+      - name: topic
+        in: query
+        required: false
+        description: Filter webhooks by topic.
+        example: transaction_completed
+        schema:
+          type: string
+      - name: authorization
+        in: header
+        required: true
+        description: A merchant scoped token.
+        example: Bearer {{merchantScopedToken}}
+        schema:
+          type: string
+      - name: Content-Type
+        in: header
+        required: true
+        example: application/json
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success - List of webhooks
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/webhookGetResponse'
+                - $ref: '#/components/schemas/200failure'
+              examples:
+                Success_V2_List:
+                  summary: Success - V2 Response
+                  value:
+                    webhooks:
+                    - id: 2318
+                      payloadVersion: '2.0'
+                      topic: transaction_completed
+                      url: https://example.com/webhook
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                error:
+                  code: AP008
+                  message: Invalid token.
+      operationId: getV2Webhook
+      x-operation-id-source: derived
+    delete:
+      summary: webhook
+      description: 'Delete the webhook(s) matching the specified topic and/or webhook ID.
+
+
+        Returns the details of every webhook that was successfully deleted.
+
+
+        Error Glossary (click to expand)
+
+
+        | Code | HTTP Status | Message |
+
+        |------|-------------|-------------|
+
+        | `AP009` | 401 | Unauthorized |
+
+        | `AP101` | 401 | No authenticated user |
+
+        | `AP1000` | 200 | Invalid API |
+
+        | `AP1100` | 400 | Topic or webhook ID required to delete webhook |
+
+        | `AP1101` | 200 | Error fetching webhook |
+
+        | `AP1106` | 200 | Error deleting webhook |
+
+        | `AP1107` | 400 | Merchant is required |'
+      tags:
+      - Webhooks
+      parameters:
+      - name: topic
+        in: query
+        required: false
+        description: The name of the topic being deleted.
+        example: transaction_completed
+        schema:
+          type: string
+      - name: webhookId
+        in: query
+        required: false
+        description: ID of the specific webhook to be deleted.
+        example: '247'
+        schema:
+          type: string
+      - name: authorization
+        in: header
+        required: true
+        example: Bearer {{merchantScopedToken}}
+        schema:
+          type: string
+      - name: Content-Type
+        in: header
+        required: true
+        example: application/json
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success - Webhook Deleted
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/webhookDeleteResponse'
+                - $ref: '#/components/schemas/200failure'
+              examples:
+                Success_Delete:
+                  summary: Success - V2 Response
+                  value:
+                    webhooks:
+                    - id: '247'
+                      payloadVersion: '2.0'
+                      topic: transaction_completed
+                      url: https://webhook.site/...
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                error:
+                  code: AP1100
+                  message: Topic or webhook Id required to delete webhook
+      operationId: deleteV2Webhook
+      x-operation-id-source: derived
+components:
+  schemas:
+    webhookPostResponse:
+      title: Post webhook Response
+      type: object
+      properties:
+        webhooks:
+          type: object
+          description: Object of webhook subscribed to
+          properties:
+            id:
+              type: integer
+              description: Id of webhook subscription.
+            topic:
+              type: string
+            url:
+              type: string
+              format: uri
+            payloadVersion:
+              type: string
+              description: Payload format version for this subscription (e.g.2.0). Determines the shape of delivered webhook payloads.
+              example: '2.0'
+    webhookDeleteResponse:
+      title: Delete webhook Response
+      type: object
+      properties:
+        webhooks:
+          type: array
+          description: Array of deleted webhook objects
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Id of webhook subscription.
+              topic:
+                type: string
+              url:
+                type: string
+                format: uri
+              payloadVersion:
+                type: string
+                description: Payload format version for this subscription (e.g.2.0). Determines the shape of delivered webhook payloads.
+                example: '2.0'
+    webhookGetResponse:
+      title: Get webhook Response
+      type: object
+      properties:
+        webhooks:
+          type: array
+          description: Array of subscribed webhook objects
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                description: Id of webhook subscription.
+              topic:
+                type: string
+              url:
+                type: string
+                format: uri
+              payloadVersion:
+                type: string
+                description: Payload format version for this subscription (e.g.2.0). Determines the shape of delivered webhook payloads.
+                example: '2.0'
+    200failure:
+      title: Failure Response
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            help:
+              type: string
+              description: Support contact information
+      example:
+        error:
+          help: Contact support@aeropay.com for help.
+          code: AP700
+          message: 'Missing required Parameter: ''email'''

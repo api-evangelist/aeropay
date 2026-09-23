@@ -1,0 +1,215 @@
+openapi: 3.2.0
+info:
+  title: Aeropay v2 Authentication API
+  version: 1.0.0
+  description: '# Introduction
+
+
+    Welcome to the Aeropay developer API documentation.'
+servers:
+- url: https://api.sandbox-pay.aero.inc
+  variables: {}
+tags:
+- name: Authentication
+paths:
+  /v2/token:
+    post:
+      summary: token
+      description: 'Authenticates API integrators for every Aeropay endpoint.
+
+
+        Returns a transient JSON web token (JWT) to authorize access to the AeroPay API. Tokens last for 30 minutes and are required in the authorization header formatted as: `Bearer {{token}}`.
+
+
+        **Scopes**
+
+        The `scope` parameter determines who is acting on the system and which endpoints are available:
+
+        * **`merchant`**: Used for merchant calls. To obtain a merchant scoped token, the `id` parameter is required.
+
+        * **`userForMerchant`**: Used to act on behalf of users created by your merchant. To obtain a userForMerchant scoped token, an additional `userId` is required along with all merchant credentials (`api_key`, `api_secret`, `id`).
+
+
+        Error Glossary (click to expand)
+
+
+        | Code | HTTP Status | Message |
+
+        |------|-------------|-------------|
+
+        | `AP002` | 401 | Invalid API key or secret key |
+
+        | `AP006` | 401 | Client not authorized for this scope |
+
+        | `AP101` | 401 | No authenticated user |
+
+        | `AP700` | 400 | Missing or invalid required parameter |
+
+        | `AP701` | 400 | Improperly formatted parameter |'
+      tags:
+      - Authentication
+      parameters:
+      - name: Content-Type
+        in: header
+        required: true
+        example: application/json
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - title: Merchant Scope
+                type: object
+                properties:
+                  apiKey:
+                    type: string
+                  apiSecret:
+                    type: string
+                  scope:
+                    type: string
+                    description: Type of token requested
+                    enum:
+                    - merchant
+                  id:
+                    type: integer
+                    description: Merchant Id. Required for merchant or userForMerchant token.
+                required:
+                - apiKey
+                - apiSecret
+                - scope
+                - id
+              - title: User For Merchant Scope
+                type: object
+                properties:
+                  apiKey:
+                    type: string
+                  apiSecret:
+                    type: string
+                  scope:
+                    type: string
+                    description: Type of token requested
+                    enum:
+                    - userForMerchant
+                  id:
+                    type: integer
+                    description: Merchant Id. Required for merchant or userForMerchant token.
+                  userId:
+                    type: string
+                    description: UUID id of user. Required for userForMerchant token.
+                required:
+                - apiKey
+                - apiSecret
+                - scope
+                - id
+                - userId
+            examples:
+              MerchantToken:
+                summary: Merchant Scope Request
+                value:
+                  apiKey: '{{api_key}}'
+                  apiSecret: '{{api_secret}}'
+                  scope: merchant
+                  id: '{{mainMerchantId}}'
+              UserForMerchantToken:
+                summary: User For Merchant Request
+                value:
+                  apiKey: '{{api_key}}'
+                  apiSecret: '{{api_secret}}'
+                  scope: userForMerchant
+                  id: '{{mainMerchantId}}'
+                  userId: '{{userId}}'
+      responses:
+        '200':
+          description: Success - Token generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  TTL:
+                    type: integer
+                  token:
+                    type: string
+              example:
+                TTL: 1800
+                token: eyJ0eXAiOiJKV1Qi...
+        '400':
+          description: Bad Request - Validation Errors. See examples for common vs. scope-specific errors.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+              examples:
+                Common_InvalidScope:
+                  summary: 'Common: Invalid scope'
+                  value:
+                    error:
+                      code: AP700
+                      message: Invalid scope
+                Common_MissingScope:
+                  summary: 'Common: Missing scope'
+                  value:
+                    error:
+                      code: AP700
+                      message: 'Missing required Parameter: ''scope'''
+                Common_MissingSecret:
+                  summary: 'Common: Missing apiSecret'
+                  value:
+                    error:
+                      code: AP700
+                      message: 'Missing required Parameter: ''apiSecret'''
+                Common_MissingKey:
+                  summary: 'Common: Missing apiKey'
+                  value:
+                    error:
+                      code: AP700
+                      message: 'Missing required Parameter: ''apiKey'''
+                Common_InvalidId:
+                  summary: 'Common: Invalid id format'
+                  value:
+                    error:
+                      code: AP701
+                      message: 'Improperly formatted parameter: [''id: invalid UUID format'']'
+                UserScope_MissingUserId:
+                  summary: 'UserForMerchant ONLY: Missing userId'
+                  value:
+                    error:
+                      code: AP700
+                      message: 'Missing required Parameter: ''userId'''
+                UserScope_InvalidUsername:
+                  summary: 'UserForMerchant ONLY: Invalid username format'
+                  value:
+                    error:
+                      code: AP701
+                      message: 'Improperly formatted parameter: [''userId: invalid username format'']'
+        '401':
+          description: Unauthorized - Authentication Failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+              example:
+                error:
+                  code: AP002
+                  message: invalid API key or secret key
+      operationId: postV2Token
+      x-operation-id-source: derived

@@ -1,0 +1,391 @@
+openapi: 3.2.0
+info:
+  title: Aeropay v2 Merchant Management API
+  version: 1.0.0
+  description: '# Introduction
+
+
+    Welcome to the Aeropay developer API documentation.'
+servers:
+- url: https://api.sandbox-pay.aero.inc
+  variables: {}
+tags:
+- name: Merchant Management
+paths:
+  /v2/merchantReputation:
+    parameters: []
+    get:
+      summary: merchantReputation
+      description: 'Retrieve the current reputation status for a specific user associated with the merchant.
+
+
+        The response includes the `userReputation` score and the `dateModified` timestamp indicating when the status was last updated.'
+      tags:
+      - Merchant Management
+      parameters:
+      - name: userId
+        in: query
+        required: false
+        description: User ID to query their reputation.
+        example: d5e17cbf-92ad-44e7-b483-19dba7adaaa4
+        schema:
+          type: string
+      - name: authorization
+        in: header
+        required: true
+        description: Merchant token with Bearer prefix.
+        example: Bearer {{merchantScopedToken}}
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success - Reputation retrieved
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - title: Get merchantReputation Response
+                  type: object
+                  properties:
+                    merchantId:
+                      type: string
+                      description: MerchantId
+                    dateModified:
+                      type: string
+                      description: Last date reputation was modified.
+                    paging:
+                      type:
+                      - object
+                      - 'null'
+                      description: Pagination
+                    userId:
+                      type: string
+                      description: User Id. No longer primary user identifier.
+                    userReputation:
+                      type: integer
+                      description: Reputation status, as integer. 0, 1, or 2
+                - $ref: '#/components/schemas/200failure'
+              examples:
+                Success_V2:
+                  summary: Success Call - V2
+                  value:
+                    merchantId: '1057'
+                    dateModified: '2025-12-26 16:49:51'
+                    paging: null
+                    userId: d5e17cbf-92ad-44e7-b483-19dba7adaaa4
+                    userReputation: 0
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              example:
+                error:
+                  code: AP700
+                  message: 'Missing required Parameter: ''user_id'''
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                error:
+                  code: AP101
+                  message: No Authenticated User
+      operationId: getV2MerchantReputation
+      x-operation-id-source: derived
+    post:
+      summary: merchantReputation
+      description: 'Create or update the reputation status for one or more users associated with the merchant.
+
+
+        Accepts a list of `userReputations`, allowing for bulk updates by providing a `reputation` score for each `userId`.'
+      tags:
+      - Merchant Management
+      parameters:
+      - name: Content-Type
+        in: header
+        required: true
+        example: application/json
+        schema:
+          type: string
+      - name: authorization
+        in: header
+        required: true
+        description: Merchant token with Bearer prefix.
+        example: Bearer {{merchantScopedToken}}
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - merchantId
+              - userReputations
+              properties:
+                merchantId:
+                  type: integer
+                userReputations:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      userId:
+                        type: string
+                      reputation:
+                        type: integer
+            example:
+              merchantId: 1057
+              userReputations:
+              - userId: 42f73292-9a78-433b-9d60-09561536a033
+                reputation: 2
+        required: true
+      responses:
+        '200':
+          description: Success - Reputation updated
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - title: Post merchantReputationStatus Response
+                  type: object
+                  properties:
+                    userReputations:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          userId:
+                            type: string
+                            description: UserId of the user whose reputation was updated.
+                          reputation:
+                            type: integer
+                            description: New reputation of the user
+                - $ref: '#/components/schemas/200failure'
+              examples:
+                Success_Update:
+                  summary: Success V2 update
+                  value:
+                    userReputations:
+                    - userId: 42f73292-9a78-433b-9d60-09561536a033
+                      reputation: 2
+        '400':
+          description: Reputation validation error
+          content:
+            application/json:
+              example:
+                error:
+                  code: AP700
+                  message: 'Missing required Parameter: ''Invalid userReputations value: reputation value 5 does not exist'''
+      operationId: postV2MerchantReputation
+      x-operation-id-source: derived
+  /v2/merchant/tipConfiguration:
+    get:
+      summary: tipConfiguration
+      description: 'Retrieve the Aeropay tipping configuration for the authenticated merchant.
+
+
+        Use this endpoint to render tip options in your own checkout flow instead of maintaining a duplicate copy of the merchant''s tip settings. Tip settings are managed in the Aeropay Merchant Portal, and this response always reflects their current state.
+
+
+        The merchant is derived from the merchant-scoped token, so this endpoint takes no request parameters. Tipping is configured at the merchant level and cannot be configured per merchant location.
+
+
+        ### Check `enabled` first
+
+
+        The response has two shapes. When tipping is off, `tipConfiguration` contains `enabled` and nothing else:
+
+
+        ```json
+
+        {"tipConfiguration": {"enabled": false}}
+
+        ```
+
+
+        `options`, `defaultValue`, and `customTipEnabled` are omitted entirely rather than returned empty, because they describe how to render a tip prompt that will never be shown. A merchant that configured tip options and later turned tipping off returns this same response - leftover options are not surfaced. Read `enabled` before reading any other field.
+
+
+        A merchant with no tipping configuration at all returns this same shape with `200`. It is not an error condition.
+
+
+        ### Reading `options`
+
+
+        When `enabled` is `true`, each entry in `options` is discriminated by `type`, and the shape of `value` changes accordingly:
+
+
+        - `type: "percentage"` — `value` is the tip percentage as a number, for example `15` or `12.5`. It is a percentage of the transaction amount, not a decimal multiplier.
+
+        - `type: "flat"` — `value` is a money object, `{"amount": , "currency": "USD"}`, matching the amount convention used elsewhere in the v2 API. An `amount` of `500` is $5.00.
+
+
+        A custom (user-entered) tip is reported by the `customTipEnabled` boolean and is never returned as an entry in `options`. A merchant whose only configured tip is a custom one returns `enabled: true` with an empty `options` array and `customTipEnabled: true`.
+
+
+        This endpoint is read-only and does not apply a tip. Once a tip is selected, send it as a tip attribute on `POST /v2/transaction` or `PATCH /v2/preauthTransaction/{preauthTransactionId}`.
+
+
+        Error Glossary (click to expand)
+
+
+        | Code | HTTP Status | Message |
+
+        |------|-------------|---------|
+
+        | `AP101` | 401 | A merchant-scoped token is required |'
+      tags:
+      - Merchant Management
+      parameters:
+      - name: authorization
+        in: header
+        required: true
+        description: Merchant token with Bearer prefix.
+        example: Bearer {{merchantScopedToken}}
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success - Tip configuration retrieved
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/tipConfigurationResponse'
+                - $ref: '#/components/schemas/200failure'
+              examples:
+                Success_Percentages:
+                  summary: Success - percentage options with custom tip
+                  value:
+                    tipConfiguration:
+                      enabled: true
+                      options:
+                      - type: percentage
+                        value: 15
+                      - type: percentage
+                        value: 20
+                      - type: percentage
+                        value: 25
+                      defaultValue: null
+                      customTipEnabled: true
+                Success_MixedOptions:
+                  summary: Success - flat and percentage options
+                  value:
+                    tipConfiguration:
+                      enabled: true
+                      options:
+                      - type: flat
+                        value:
+                          amount: 500
+                          currency: USD
+                      - type: percentage
+                        value: 12.5
+                      defaultValue: null
+                      customTipEnabled: false
+                Success_TippingDisabled:
+                  summary: Success - tipping disabled or not configured
+                  value:
+                    tipConfiguration:
+                      enabled: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                error:
+                  code: AP101
+                  message: A merchant-scoped token is required.
+      operationId: getV2MerchantTipConfiguration
+      x-operation-id-source: derived
+components:
+  schemas:
+    tipConfigurationResponse:
+      title: Get tipConfiguration Response
+      type: object
+      properties:
+        tipConfiguration:
+          description: The merchant's current tipping configuration. Returned in one of two shapes depending on `enabled`.
+          oneOf:
+          - title: Tipping enabled
+            type: object
+            description: Returned when the merchant has tipping switched on.
+            required:
+            - enabled
+            - options
+            - defaultValue
+            - customTipEnabled
+            properties:
+              enabled:
+                type: boolean
+                enum:
+                - true
+                description: Always `true` in this variant. The remaining fields are present only in this shape.
+              options:
+                type: array
+                description: The tip options configured by the merchant, in configured order. A custom tip is never included here - see `customTipEnabled`. May be empty when the merchant's only configured tip is a custom one.
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - percentage
+                      - flat
+                      description: Determines how `value` is interpreted. `percentage` is a percentage of the transaction amount; `flat` is a fixed currency amount.
+                    value:
+                      description: The tip value. A number when `type` is `percentage`, a money object when `type` is `flat`.
+                      oneOf:
+                      - title: Percentage value
+                        type: number
+                        description: Returned when `type` is `percentage`. The tip percentage of the transaction amount, for example `15` or `12.5` - not a decimal multiplier.
+                        example: 15
+                      - title: Flat value
+                        type: object
+                        description: Returned when `type` is `flat`.
+                        properties:
+                          amount:
+                            type: integer
+                            description: The flat tip amount in cents. `500` is $5.00.
+                            example: 500
+                          currency:
+                            type: string
+                            description: ISO 4217 currency code. Always `USD`.
+                            example: USD
+              defaultValue:
+                description: Reserved for a pre-selected default tip option. Always `null` today - a default selection is not yet configurable in the Aeropay Merchant Portal. The key is always present in this variant so the shape remains stable, and will begin returning a value once default selection is supported. Treat `null` as no option pre-selected. No type is declared because the eventual shape will follow the selected option.
+                example: null
+              customTipEnabled:
+                type: boolean
+                description: Whether the merchant has configured a custom, user-entered tip. When `true`, present a custom tip input alongside `options`. A custom tip is reported here rather than as an entry in `options`.
+          - title: Tipping disabled
+            type: object
+            description: Returned when the merchant has tipping switched off, or has no tipping configuration at all. `enabled` is the only key present - `options`, `defaultValue`, and `customTipEnabled` are omitted rather than returned empty.
+            required:
+            - enabled
+            additionalProperties: false
+            properties:
+              enabled:
+                type: boolean
+                enum:
+                - false
+                description: Always `false` in this variant. Do not present tipping at checkout.
+    200failure:
+      title: Failure Response
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            help:
+              type: string
+              description: Support contact information
+      example:
+        error:
+          help: Contact support@aeropay.com for help.
+          code: AP700
+          message: 'Missing required Parameter: ''email'''

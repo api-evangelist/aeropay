@@ -1,0 +1,536 @@
+openapi: 3.2.0
+info:
+  title: Aeropay v2 User Management API
+  version: 1.0.0
+  description: '# Introduction
+
+
+    Welcome to the Aeropay developer API documentation.'
+servers:
+- url: https://api.sandbox-pay.aero.inc
+  variables: {}
+tags:
+- name: User Management
+paths:
+  /v2/user:
+    parameters: []
+    post:
+      summary: user
+      description: 'Create a user associated with the authorized merchant.
+
+
+        When creating a user, a `userId` is returned. This `userId` is required for referencing the user within the AeroPay system.
+
+
+        Error Glossary (click to expand)
+
+
+        | Code | HTTP Status | Message |
+
+        |------|-------------|-------------|
+
+        | `AP006` | 401 | Client not authorized for this scope |
+
+        | `AP101` | 401 | No authenticated user |
+
+        | `AP102` | 200 | Unable to create user |
+
+        | `AP105` | 200 | Phone number missing area code |
+
+        | `AP106` | 200 | Improperly formatted phone number |
+
+        | `AP115` | 200 | Unsupported phone type |
+
+        | `AP118` | 200 | Name cannot contain numbers or special characters |
+
+        | `AP119` | 200 | Unsupported country code - US numbers only |
+
+        | `AP700` | 400 | Missing or invalid required parameter |'
+      tags:
+      - User Management
+      parameters:
+      - name: Content-Type
+        in: header
+        required: true
+        example: application/json
+        schema:
+          type: string
+      - name: authorization
+        in: header
+        required: true
+        description: A merchant scoped token.
+        example: Bearer {{merchantScopedToken}}
+        schema:
+          type: string
+      requestBody:
+        description: Payload to create a new consumer user.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userRequest'
+            example:
+              firstName: John
+              lastName: Doe
+              email: test@test.com
+              phoneNumber: '13125826818'
+        required: true
+      responses:
+        '200':
+          description: Success or Validation Failure (Unified 200)
+          headers:
+            Date:
+              schema:
+                type: string
+              example: Tue, 24 Jun 2025 20:24:21 GMT
+            Content-Type:
+              schema:
+                type: string
+              example: application/json
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/userObject'
+                - $ref: '#/components/schemas/200failure'
+              examples:
+                Success_User_Response_MFA:
+                  summary: 'Success: User Response with MFA'
+                  value:
+                    user:
+                      id: 2ac82269-9315-4bb6-8a19-f37e20d50238
+                      firstName: JohnNew
+                      lastName: DoeNew
+                      type: consumer
+                      email: test-1754932665@aeropay.com
+                      phoneNumber: '+11754932665'
+                      createdDate: '2025-02-27T12:59:32+00:00'
+                    mfaType: null
+                Error_MissingEmail:
+                  summary: 'Error: Missing Email'
+                  value:
+                    error:
+                      help: Contact support@aeropay.com for help.
+                      code: AP700
+                      message: 'Missing required Parameter: ''email'''
+                Error_MissingPhone:
+                  summary: 'Error: Missing Phone Number'
+                  value:
+                    error:
+                      help: Contact support@aeropay.com for help.
+                      code: AP700
+                      message: 'Missing required Parameter: ''phoneNumber'''
+                Error_InvalidPhoneFormat:
+                  summary: 'Error: Invalid Phone Format'
+                  value:
+                    error:
+                      help: Contact support@aeropay.com for help.
+                      code: AP115
+                      message: We're sorry, but the type of phone you entered is not supported or invalid.
+                Error_InvalidNameFormat:
+                  summary: 'Error: Invalid Name Format'
+                  value:
+                    error:
+                      help: Contact support@aeropay.com for help.
+                      code: AP118
+                      message: User cannot be created with numbers or special characters
+                Error_ImproperlyFormatted:
+                  summary: 'Error: Improperly Formatted Parameter'
+                  value:
+                    error:
+                      help: Contact support@aeropay.com for help.
+                      code: AP700
+                      message: 'Improperly formatted parameter: [''firstName'']'
+        '401':
+          description: Unauthorized - Invalid or missing Merchant Token
+          content:
+            application/json:
+              example:
+                error:
+                  code: AP002
+                  message: invalid API key or secret key
+      operationId: postV2User
+      x-operation-id-source: derived
+    get:
+      summary: user
+      description: 'Fetch a user associated with the merchant.
+
+
+        The user fetched is based on the `userId` provided in the `/token` call.
+
+
+        Error Glossary (click to expand)
+
+
+        | Code | HTTP Status | Message |
+
+        |------|-------------|-------------|
+
+        | `AP101` | 401 | No authenticated user |'
+      tags:
+      - User Management
+      parameters:
+      - name: Content-Type
+        in: header
+        required: true
+        example: application/json
+        schema:
+          type: string
+      - name: authorization
+        in: header
+        required: true
+        description: A userForMerchant scoped token.
+        example: Bearer {{userForMerchantScopedToken}}
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          headers:
+            Date:
+              schema:
+                type: string
+              example: Tue, 29 Jul 2025 11:07:36 GMT
+            Content-Type:
+              schema:
+                type: string
+              example: application/json
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/userGetResponse'
+                - $ref: '#/components/schemas/200failure'
+              examples:
+                Success_UserDetails:
+                  summary: 'Success: Get User Details'
+                  value:
+                    user:
+                      id: 2ac82269-9315-4bb6-8a19-f37e20d50238
+                      firstName: JohnNew
+                      lastName: DoeNew
+                      type: consumer
+                      email: test-1754932665@aeropay.com
+                      phoneNumber: '+11754932665'
+                      createdDate: '2025-02-27T12:59:32+00:00'
+                      userStatus: Active
+        '401':
+          description: Unauthorized - Invalid or missing User Token
+          content:
+            application/json:
+              example:
+                error:
+                  code: AP002
+                  message: invalid API key or secret key
+      operationId: getV2User
+      x-operation-id-source: derived
+  /v2/confirmUser:
+    parameters: []
+    post:
+      summary: confirmUser
+      description: 'Verifies a user account with the MFA code they receive.
+
+
+        Error Glossary (click to expand)
+
+
+        | Code | HTTP Status | Message |
+
+        |------|-------------|-------------|
+
+        | `AP101` | 401 | No authenticated user |
+
+        | `AP111` | 200 | Invalid verification code |
+
+        | `AP112` | 200 | Max verification attempts exceeded |
+
+        | `AP113` | 200 | User does not exist |
+
+        | `AP700` | 400 | Missing or invalid required parameter |
+
+        | `AP701` | 400 | Improperly formatted parameter |'
+      tags:
+      - User Management
+      parameters:
+      - name: authorization
+        in: header
+        required: true
+        description: A merchant scoped token.
+        example: Bearer {{merchantScopedToken}}
+        schema:
+          type: string
+      - name: Content-Type
+        in: header
+        required: true
+        example: application/json
+        schema:
+          type: string
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              title: confirmUserObject
+              type: object
+              required:
+              - userId
+              - code
+              - merchantId
+              properties:
+                userId:
+                  type: string
+                  description: Id of the user to be confirmed
+                code:
+                  type: string
+                  description: Verification code
+                merchantId:
+                  type: integer
+                  description: Merchant identifier
+            example:
+              userId: '14831'
+              code: '223324'
+              merchantId: '1234'
+        required: true
+      responses:
+        '200':
+          headers:
+            Date:
+              schema:
+                type: string
+              example: Tue, 29 Jul 2025 18:21:59 GMT
+            Content-Type:
+              schema:
+                type: string
+              example: application/json
+          description: Success - User Confirmed
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/confirmUserObject'
+                - $ref: '#/components/schemas/200failure'
+              examples:
+                Success_V2:
+                  summary: Success V2 - User Confirmed
+                  value:
+                    user:
+                      id: 2ac82269-9315-4bb6-8a19-f37e20d50238
+                      firstName: JohnNew
+                      lastName: DoeNew
+                      type: consumer
+                      email: test-1754932665@aeropay.com
+                      phoneNumber: '+11754932665'
+                      createdDate: '2025-02-27T12:59:32+00:00'
+                      userStatus: Active
+                Error_UserNotExist:
+                  summary: Fail - User does not exist
+                  value:
+                    error:
+                      help: contact support@aeropay.com for help
+                      code: AP113
+                      message: User does not exist
+        '400':
+          description: Bad Request - Validation Errors
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+              examples:
+                Error_ImproperUserId:
+                  summary: Fail - Improper userId
+                  value:
+                    error:
+                      help: contact support@aeropay.com for help
+                      code: AP701
+                      message: 'Improperly formatted parameter: [''userId'']'
+      operationId: postV2ConfirmUser
+      x-operation-id-source: derived
+components:
+  schemas:
+    userRequest:
+      title: Post user Request
+      required:
+      - firstName
+      - lastName
+      - phoneNumber
+      - email
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: First name of user being created
+        lastName:
+          type: string
+          description: Last name of user being created
+        phoneNumber:
+          type: string
+          description: Phone number of user in international format (+11234567890). Landlines, VOIPs, or prepaid numbers are invalid.
+        email:
+          type: string
+          description: Email of user being created
+      example:
+        firstName: Stephanie
+        lastName: Jones
+        phoneNumber: '+11234567890'
+        email: stephjones@aeropay.com
+    userGetResponse:
+      title: Get user Response
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              description: The id of the user, in uuid format
+            firstName:
+              type: string
+              description: The user's first name
+            lastName:
+              type: string
+              description: The user's last name
+            type:
+              type: string
+              description: Type of user. (consumer, business)
+            email:
+              type: string
+              format: email
+              description: The user's email
+            phoneNumber:
+              type: string
+              description: The user's phone number
+            createdDate:
+              type: string
+              format: date-time
+              description: Date user was created
+            userStatus:
+              type: string
+              description: The user's status
+      example:
+        user:
+          id: 2ac82269-9315-4bb6-8a19-f37e20d50238
+          firstName: JohnNew
+          lastName: DoeNew
+          type: consumer
+          email: test-1754932665@aeropay.com
+          phoneNumber: '+11754932665'
+          createdDate: '2025-02-27T12:59:32+00:00'
+          userStatus: Active
+    confirmUserObject:
+      title: Confirm user - MFA Validation
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              description: The id of the user, in uuid format
+            firstName:
+              type: string
+              description: The user's first name
+            lastName:
+              type: string
+              description: The user's last name
+            type:
+              type: string
+              description: Type of user. (consumer, business)
+            email:
+              type: string
+              format: email
+              description: The user's email
+            phoneNumber:
+              type: string
+              description: The user's phone number
+            createdDate:
+              type: string
+              format: date-time
+              description: Date user was created
+            userStatus:
+              type: string
+              format: date-time
+              description: Date user was created
+      example:
+        user:
+          id: 2ac82269-9315-4bb6-8a19-f37e20d50238
+          firstName: JohnNew
+          lastName: DoeNew
+          type: consumer
+          email: test-1754932665@aeropay.com
+          phoneNumber: '+11754932665'
+          createdDate: '2025-02-27T12:59:32+00:00'
+          userStatus: Active
+    200failure:
+      title: Failure Response
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            help:
+              type: string
+              description: Support contact information
+      example:
+        error:
+          help: Contact support@aeropay.com for help.
+          code: AP700
+          message: 'Missing required Parameter: ''email'''
+    userObject:
+      title: Post user - New User and Network User Response
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              description: The id of the user, in uuid format
+            firstName:
+              type: string
+              description: The user's first name
+            lastName:
+              type: string
+              description: The user's last name
+            type:
+              type: string
+              description: Type of user. (consumer, business)
+            email:
+              type: string
+              format: email
+              description: The user's email
+            phoneNumber:
+              type: string
+              description: The user's phone number
+            createdDate:
+              type: string
+              format: date-time
+              description: Date user was created
+        mfaType:
+          type: string
+          description: The Multi-Factor Authentication type determined by the merchant's configuration.
+          enum:
+          - sms
+          - email
+          example: sms
+      example:
+        user:
+          id: 2ac82269-9315-4bb6-8a19-f37e20d50238
+          firstName: JohnNew
+          lastName: DoeNew
+          type: consumer
+          email: test-1754932665@aeropay.com
+          phoneNumber: '+11754932665'
+          createdDate: '2025-02-27T12:59:32+00:00'
+          userStatus: Active
+        mfaType: sms

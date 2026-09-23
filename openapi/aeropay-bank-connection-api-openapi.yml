@@ -1,0 +1,565 @@
+openapi: 3.2.0
+info:
+  title: Aeropay v2 Bank Connection API
+  version: 1.0.0
+  description: '# Introduction
+
+
+    Welcome to the Aeropay developer API documentation.'
+servers:
+- url: https://api.sandbox-pay.aero.inc
+  variables: {}
+tags:
+- name: Bank Connection
+paths:
+  /v2/aggregatorCredentials:
+    parameters: []
+    get:
+      summary: aggregatorCredentials
+      description: 'Request a new aggregator URL to launch an aggregator widget with a unique token.
+
+
+        This will allow users to link their bank account.
+
+
+        Error Glossary (click to expand)
+
+
+        | Code | HTTP Status | Message |
+
+        |------|-------------|-------------|
+
+        | `AP101` | 401 | No authenticated user |
+
+        | `AP407` | 200 | Bank linking disabled on account |
+
+        | `AP408` | 200 | Unknown aggregator |
+
+        | `AP409` | 200 | Invalid redirectURI |'
+      tags:
+      - Bank Connection
+      parameters:
+      - name: aggregator
+        in: query
+        required: true
+        description: The aggregator you are using to launch a bank linking widget. Only accepted value is aerosync
+        example: aerosync
+        schema:
+          type: string
+          enum:
+          - aerosync
+      - name: Content-Type
+        in: header
+        required: true
+        example: application/json
+        schema:
+          type: string
+      - name: authorization
+        in: header
+        required: true
+        description: A userForMerchant scoped token.
+        example: Bearer {{userForMerchantScopedToken}}
+        schema:
+          type: string
+      responses:
+        '200':
+          headers:
+            Date:
+              schema:
+                type: string
+              example: Tue, 29 Jul 2025 18:05:13 GMT
+            Content-Type:
+              schema:
+                type: string
+              example: application/json
+          description: Success or Business Logic Error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/aggregatorCredentialsResponse'
+                - $ref: '#/components/schemas/200failure'
+              examples:
+                Success_CorrectToken:
+                  summary: Success - Correct Token
+                  value:
+                    fastlinkURL: https://sandbox.aerosync.com/
+                    token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+                    username: 16d96afbeaf0........
+                Error_InvalidAggregator:
+                  summary: Fail - Invalid Aggregator
+                  value:
+                    error:
+                      code: AP408
+                      message: Unknown Aggregator aerosyncj
+        '400':
+          description: Bad Request - Validation Errors
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+              examples:
+                Error_InvalidURI:
+                  summary: Fail - Invalid URI format
+                  value:
+                    code: INVALID_FORMAT
+                    message: The redirectURI is not a valid URL structure.
+                Error_MissingAggregator:
+                  summary: Fail - Missing aggregator
+                  value:
+                    code: MISSING_PARAMETER
+                    message: The aggregator parameter is required.
+      operationId: getV2AggregatorCredentials
+      x-operation-id-source: derived
+  /v2/linkAccountFromAggregator:
+    parameters: []
+    post:
+      summary: linkAccountFromAggregator
+      description: 'Associates a user bank account with their AeroPay account.
+
+
+        This call is to be made after a user goes through an aggregator bank connection flow leveraging the URL from `/v2/aggregatorCredentials` endpoint. You will receive the `connectionId` as response attributes from the aggregator widget.
+
+
+        Error Glossary (click to expand)
+
+
+        | Code | HTTP Status | Message |
+
+        |------|-------------|-------------|
+
+        | `AP101` | 401 | No authenticated user |
+
+        | `AP300` | 200 | Unable to connect to bank |
+
+        | `AP403` | 200 | Bank not supported |
+
+        | `AP404` | 200 | Invalid routing number |
+
+        | `AP408` | 200 | Unknown aggregator |
+
+        | `AP409` | 200 | Invalid redirectURI |
+
+        | `AP410` | 200 | Error linking bank account |
+
+        | `AP411` | 200 | Invalid account type - connect a checking account |
+
+        | `AP414` | 200 | Maximum linked accounts reached |
+
+        | `AP415` | 200 | Bank account already linked |
+
+        | `AP700` | 400 | Missing or invalid required parameter |'
+      tags:
+      - Bank Connection
+      parameters:
+      - name: Content-Type
+        in: header
+        required: true
+        example: application/json
+        schema:
+          type: string
+      - name: authorization
+        in: header
+        required: true
+        description: A userForMerchant scoped token.
+        example: Bearer {{userForMerchantScopedToken}}
+        schema:
+          type: string
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              title: linkAccountFromAggregatorRequest
+              description: Body of linkAccountFromAggregator call
+              type: object
+              required:
+              - connectionId
+              - aggregator
+              properties:
+                connectionId:
+                  type: string
+                  description: ConnectionId returned from Aerosync SDK
+                aggregator:
+                  type: string
+                  description: aerosync
+                  enum:
+                  - aerosync
+            example:
+              connectionId: '{{connectionId}}'
+              aggregator: aerosync
+        required: true
+      responses:
+        '200':
+          headers:
+            Date:
+              schema:
+                type: string
+              example: Wed, 30 Jul 2025 12:19:17 GMT
+            Content-Type:
+              schema:
+                type: string
+              example: application/json
+          description: Success or Connection Failure
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - title: Post aggregatorCredentials Response
+                  type: object
+                  properties:
+                    userBankInfo:
+                      type: object
+                      properties:
+                        bankAccountId:
+                          type: integer
+                        bankName:
+                          type: string
+                        accountLast4:
+                          type: string
+                        name:
+                          type: string
+                        externalBankAccountId:
+                          type: string
+                        isSelected:
+                          type: boolean
+                        accountType:
+                          type: string
+                        status:
+                          type: string
+                        createdDate:
+                          type: string
+                        accountHolderInfo:
+                          type: array
+                          items:
+                            type: object
+                        canFetchBalance:
+                          type: boolean
+                        balance:
+                          type: integer
+                - title: Failure Response
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                    code:
+                      type: string
+                    error:
+                      type: string
+              examples:
+                Success:
+                  summary: Success
+                  value:
+                    userBankInfo:
+                      bankAccountId: 0
+                      bankName: Aerosync Bank (oAuth)
+                      accountLast4: '1329'
+                      name: Aerosync Checking
+                      externalBankAccountId: None
+                      isSelected: true
+                      accountType: checking
+                      status: verified
+                      createdDate: '2025-12-11T21:50:22+00:00'
+                      accountHolderInfo:
+                      - name:
+                          fullName: Dwight Schrute
+                      canFetchBalance: true
+                      balance: 312425
+                Fail_IncorrectBody:
+                  summary: Fail - Incorrect body
+                  value:
+                    success: false
+                    code: AP300
+                    error: We are having issues connecting to your bank. Try reconnecting your bank or reach out to support@aeropay.com to resolve the issue.
+      operationId: postV2LinkAccountFromAggregator
+      x-operation-id-source: derived
+  /v2/userBankAccount/{bankAccountId}:
+    parameters:
+    - name: bankAccountId
+      in: path
+      required: true
+      description: The unique identifier of the bank account to update.
+      example: '{{bankAccountId}}'
+      schema:
+        type: string
+    patch:
+      summary: userBankAccount
+      description: 'Selects a user''s bank account. This sets the default bank account for transactions. If no bankAccountId is provided in the /transaction call, the selected account will be used.
+
+
+        Error Glossary (click to expand)
+
+
+        | Code | HTTP Status | Message |
+
+        |------|-------------|-------------|
+
+        | `AP101` | 401 | No authenticated user |
+
+        | `AP400` | 200 | No bank account linked |
+
+        | `AP401` | 400 | Cannot validate bank account |
+
+        | `AP412` | 200 | Bank account already removed |
+
+        | `AP700` | 400 | Missing or invalid required parameter |
+
+        | `AP701` | 400 | Improperly formatted parameter |'
+      tags:
+      - Bank Connection
+      parameters:
+      - name: Content-Type
+        in: header
+        required: true
+        example: application/json
+        schema:
+          type: string
+      - name: authorization
+        in: header
+        required: true
+        description: A userForMerchant scoped token.
+        example: Bearer {{userForMerchantScopedToken}}
+        schema:
+          type: string
+      responses:
+        '200':
+          headers:
+            Date:
+              schema:
+                type: string
+              example: Thu, 07 Aug 2025 14:09:05 GMT
+            Content-Type:
+              schema:
+                type: string
+              example: application/json
+          description: Success - Bank Account Updated
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - title: Patch use response
+                  type: object
+                  properties:
+                    bankAccount:
+                      type: object
+                      properties:
+                        bankAccountId:
+                          type: integer
+                        bankName:
+                          type: string
+                        accountLast4:
+                          type: string
+                        name:
+                          type: string
+                        isSelected:
+                          type: boolean
+                        accountType:
+                          type: string
+                        status:
+                          type: string
+                        createdDate:
+                          type: string
+                - $ref: '#/components/schemas/200failure'
+              examples:
+                Success_Activated:
+                  summary: Success - activated bank account
+                  value:
+                    bankAccount:
+                      bankAccountId: 0
+                      bankName: Aerosync Bank (MFA)
+                      accountLast4: '0000'
+                      name: Aerosync Checking
+                      isSelected: true
+                      accountType: checking
+                      status: verified
+                      createdDate: '2025-12-01T18:52:37+00:00'
+        '400':
+          description: Bad Request - Validation Errors
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+              examples:
+                Fail_InvalidAccount:
+                  summary: Fail - invalid bank account
+                  value:
+                    error:
+                      code: AP401
+                      message: We cannot validate the account you're attempting to connect. Please connect a valid account.
+      operationId: patchV2UserBankAccountByBankAccountId
+      x-operation-id-source: derived
+  /v2/bankAccounts:
+    get:
+      summary: bankAccounts
+      description: 'Retrieve a list of bank accounts associated with the authenticated user.
+
+
+        Error Glossary (click to expand)
+
+
+        | Code | HTTP Status | Message |
+
+        |------|-------------|-------------|
+
+        | `AP101` | 401 | No authenticated user |'
+      tags:
+      - Bank Connection
+      parameters:
+      - name: Content-Type
+        in: header
+        required: true
+        example: application/json
+        schema:
+          type: string
+      - name: authorization
+        in: header
+        required: true
+        description: A userForMerchant scoped token.
+        example: Bearer {{userForMerchantScopedToken}}
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          headers:
+            Date:
+              schema:
+                type: string
+              example: Tue, 02 Dec 2025 20:26:27 GMT
+            Content-Type:
+              schema:
+                type: string
+              example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bankAccounts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        bankAccountId:
+                          type: integer
+                        bankName:
+                          type: string
+                        accountLast4:
+                          type: string
+                        name:
+                          type: string
+                        isSelected:
+                          type: boolean
+                        accountType:
+                          type: string
+                        status:
+                          type: string
+                        createdDate:
+                          type: string
+                        connectionId:
+                          type: string
+                          format: uuid
+                          description: Optional connection identifier for this bank account. Present only when the Bank Aggregator is AeroSync.
+              examples:
+                Success:
+                  summary: Success - Multiple Accounts
+                  value:
+                    bankAccounts:
+                    - bankAccountId: 1139036
+                      bankName: Aerosync Bank (MFA)
+                      accountLast4: '3535'
+                      name: Aerosync Checking
+                      isSelected: true
+                      accountType: checking
+                      status: verified
+                      createdDate: '2025-12-01T18:52:37+00:00'
+                      connectionId: bd9d48bd-8b51-4e6e-9f4b-5f5e8f4b0a10
+                    - bankAccountId: 1139682
+                      bankName: Aerosync Bank (oAuth)
+                      accountLast4: '1329'
+                      name: Aerosync Checking
+                      isSelected: false
+                      accountType: checking
+                      status: verified
+                      createdDate: '2025-12-11T21:50:22+00:00'
+                      connectionId: 2e6f7a9b-0df6-4d6c-9b4e-3c9f1c4c7e21
+                Success_One:
+                  summary: Success - One Account
+                  value:
+                    bankAccounts:
+                    - bankAccountId: 957022
+                      bankName: undefined
+                      accountLast4: '5432'
+                      name: Test EA Account
+                      isSelected: true
+                      accountType: checking
+                      status: None
+                      createdDate: '2025-08-13T16:47:00+00:00'
+                Success_Empty:
+                  summary: Success - No Accounts
+                  value:
+                    bankAccounts: []
+        '401':
+          description: Unauthorized - Invalid or missing Token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+              example:
+                error:
+                  code: AP002
+                  message: invalid API key or secret key
+      operationId: getV2BankAccounts
+      x-operation-id-source: derived
+components:
+  schemas:
+    aggregatorCredentialsResponse:
+      title: Post aggregatorCredentials Response
+      type: object
+      properties:
+        fastlinkURL:
+          type: string
+        token:
+          type: string
+        username:
+          type: string
+    200failure:
+      title: Failure Response
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            help:
+              type: string
+              description: Support contact information
+      example:
+        error:
+          help: Contact support@aeropay.com for help.
+          code: AP700
+          message: 'Missing required Parameter: ''email'''

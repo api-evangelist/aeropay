@@ -1,0 +1,41 @@
+{
+  "provider": "aeropay",
+  "sources": [
+    "_original/aeropay-v2-openapi.json"
+  ],
+  "outputs": [
+    "aeropay-authentication-api-openapi.yml",
+    "aeropay-bank-connection-api-openapi.yml",
+    "aeropay-create-manage-transactions-api-openapi.yml",
+    "aeropay-merchant-management-api-openapi.yml",
+    "aeropay-reports-api-openapi.yml",
+    "aeropay-user-management-api-openapi.yml",
+    "aeropay-webhooks-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "1 archived document(s) dropped as subsets of other archived documents",
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "aeropay-v2-openapi.json: upgraded openapi 3.0.0 -> OpenAPI 3.2.0",
+    "aeropay-v2-openapi.json: declared missing tag: Authentication",
+    "aeropay-v2-openapi.json: declared missing tag: Bank Connection",
+    "aeropay-v2-openapi.json: declared missing tag: Create & Manage Transactions",
+    "aeropay-v2-openapi.json: declared missing tag: Merchant Management",
+    "aeropay-v2-openapi.json: declared missing tag: Reports",
+    "aeropay-v2-openapi.json: declared missing tag: User Management",
+    "aeropay-v2-openapi.json: declared missing tag: Webhooks",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "_original/aeropay-v2-openapi.yml: archived document superseded by a larger archived document",
+    "aeropay-authentication-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "aeropay-bank-connection-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "aeropay-create-manage-transactions-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "aeropay-merchant-management-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "aeropay-reports-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "aeropay-user-management-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "aeropay-webhooks-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}
