@@ -2787,8 +2787,8 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    preauthTransactionResponse:
-      title: Post preauthTransaction Response
+    payoutTransactionResponse:
+      title: Post payoutTransaction Response
       type: object
       properties:
         transaction:
@@ -2799,37 +2799,28 @@ components:
             amount:
               type: object
               properties:
-                currency:
-                  type: string
                 amount:
                   type: integer
+                currency:
+                  type: string
             status:
+              type: string
+            paymentType:
               type: string
             userId:
               type: string
-            description:
+            referenceId:
               type: string
-            attributes:
-              type: object
-            createdDate:
-              type: string
-              format: date-time
-            expiryDate:
-              type: string
-              format: date-time
-            userName:
-              type: string
-            userEmail:
-              type: string
-              format: email
+            isRtp:
+              type: boolean
             merchantId:
+              type: integer
+            title:
+              type: string
+            locationId:
               type: integer
             userAccountId:
               type: integer
-            locationId:
-              type: integer
-            referenceId:
-              type: string
     capturePreauthTransactionResponse:
       title: POST capturePreauthTransaction Response
       type: object
@@ -2871,30 +2862,6 @@ components:
               type: integer
             locationId:
               type: integer
-    200failure:
-      title: Failure Response
-      type: object
-      properties:
-        error:
-          type: object
-          properties:
-            code:
-              type: string
-            message:
-              type: string
-            help:
-              type: string
-              description: Support contact information
-      example:
-        error:
-          help: Contact support@aeropay.com for help.
-          code: AP700
-          message: 'Missing required Parameter: ''email'''
-    emptyResponse:
-      title: Empty Response
-      type: object
-      properties: {}
-      example: {}
     transactionResponse:
       title: Post transaction Response
       type: object
@@ -2933,75 +2900,6 @@ components:
               type: integer
             userAccountId:
               type: integer
-    queuedRefundItem:
-      title: Queued refund item
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: UUID4 assigned to this queued refund at creation. Will become the aeroTransaction.id when the queued refund is processed.
-        referenceId:
-          type:
-          - string
-          - 'null'
-          description: Merchant-provided reference supplied at the time POST /v2/reverseTransaction was called. null if none was provided. Stored as a transaction attribute when processed.
-        amount:
-          type: object
-          properties:
-            amount:
-              type: integer
-              description: Queued refund amount in cents
-            currency:
-              type: string
-              description: Currency code (e.g., USD)
-        status:
-          type: string
-          description: Current state of this queued refund entry. 'queued' means it is pending processing. 'abandoned' means it was superseded or cancelled before processing.
-          enum:
-          - queued
-          - abandoned
-      example:
-        id: a3f1c2d4-e5b6-7890-abcd-ef1234567890
-        referenceId: b4e2d3f5-f6c7-8901-bcde-fa2345678901
-        amount:
-          amount: 1500
-          currency: USD
-        status: queued
-    transactionRefundsResponse:
-      title: Get transaction refunds Response
-      type: object
-      properties:
-        refunds:
-          type: array
-          description: List of processed or pending refunds for the transaction. Empty array when only queued refunds exist.
-          items:
-            $ref: '#/components/schemas/transactionGetResponse'
-        queuedRefunds:
-          type: array
-          description: List of individually tracked refunds that have been requested but not yet processed. Each item carries its own id, referenceId, amount, and status. Empty array when no queued refunds exist.
-          items:
-            $ref: '#/components/schemas/queuedRefundItem'
-      example:
-        refunds:
-        - id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
-          amount:
-            amount: 5000
-            currency: USD
-          status: processed
-          paymentType: reversal
-          userId: 2ac82269-9315-4bb6-8a19-f37e20d50238
-          title: Refund for Online Transaction
-          referenceId: 0123456789
-          attributes: []
-          createdDate: '2026-01-22T10:30:00+00:00'
-          modifiedDate: '2026-01-22T10:30:00+00:00'
-          apFee: '0.00'
-          isRtp: false
-          merchantId: 582
-          locationId: 541
-          userAccountId: 1139036
-        queuedRefunds: []
     transactionGetResponse:
       title: Get transaction Response
       type: object
@@ -3048,8 +2946,82 @@ components:
               type: integer
             userAccountId:
               type: integer
-    payoutTransactionResponse:
-      title: Post payoutTransaction Response
+    transactionRefundsResponse:
+      title: Get transaction refunds Response
+      type: object
+      properties:
+        refunds:
+          type: array
+          description: List of processed or pending refunds for the transaction. Empty array when only queued refunds exist.
+          items:
+            $ref: '#/components/schemas/transactionGetResponse'
+        queuedRefunds:
+          type: array
+          description: List of individually tracked refunds that have been requested but not yet processed. Each item carries its own id, referenceId, amount, and status. Empty array when no queued refunds exist.
+          items:
+            $ref: '#/components/schemas/queuedRefundItem'
+      example:
+        refunds:
+        - id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+          amount:
+            amount: 5000
+            currency: USD
+          status: processed
+          paymentType: reversal
+          userId: 2ac82269-9315-4bb6-8a19-f37e20d50238
+          title: Refund for Online Transaction
+          referenceId: 0123456789
+          attributes: []
+          createdDate: '2026-01-22T10:30:00+00:00'
+          modifiedDate: '2026-01-22T10:30:00+00:00'
+          apFee: '0.00'
+          isRtp: false
+          merchantId: 582
+          locationId: 541
+          userAccountId: 1139036
+        queuedRefunds: []
+    queuedRefundItem:
+      title: Queued refund item
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: UUID4 assigned to this queued refund at creation. Will become the aeroTransaction.id when the queued refund is processed.
+        referenceId:
+          type:
+          - string
+          - 'null'
+          description: Merchant-provided reference supplied at the time POST /v2/reverseTransaction was called. null if none was provided. Stored as a transaction attribute when processed.
+        amount:
+          type: object
+          properties:
+            amount:
+              type: integer
+              description: Queued refund amount in cents
+            currency:
+              type: string
+              description: Currency code (e.g., USD)
+        status:
+          type: string
+          description: Current state of this queued refund entry. 'queued' means it is pending processing. 'abandoned' means it was superseded or cancelled before processing.
+          enum:
+          - queued
+          - abandoned
+      example:
+        id: a3f1c2d4-e5b6-7890-abcd-ef1234567890
+        referenceId: b4e2d3f5-f6c7-8901-bcde-fa2345678901
+        amount:
+          amount: 1500
+          currency: USD
+        status: queued
+    emptyResponse:
+      title: Empty Response
+      type: object
+      properties: {}
+      example: {}
+    preauthTransactionResponse:
+      title: Post preauthTransaction Response
       type: object
       properties:
         transaction:
@@ -3060,25 +3032,53 @@ components:
             amount:
               type: object
               properties:
-                amount:
-                  type: integer
                 currency:
                   type: string
+                amount:
+                  type: integer
             status:
-              type: string
-            paymentType:
               type: string
             userId:
               type: string
-            referenceId:
+            description:
               type: string
-            isRtp:
-              type: boolean
+            attributes:
+              type: object
+            createdDate:
+              type: string
+              format: date-time
+            expiryDate:
+              type: string
+              format: date-time
+            userName:
+              type: string
+            userEmail:
+              type: string
+              format: email
             merchantId:
-              type: integer
-            title:
-              type: string
-            locationId:
               type: integer
             userAccountId:
               type: integer
+            locationId:
+              type: integer
+            referenceId:
+              type: string
+    200failure:
+      title: Failure Response
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            help:
+              type: string
+              description: Support contact information
+      example:
+        error:
+          help: Contact support@aeropay.com for help.
+          code: AP700
+          message: 'Missing required Parameter: ''email'''

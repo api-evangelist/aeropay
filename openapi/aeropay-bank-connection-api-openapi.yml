@@ -534,16 +534,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    aggregatorCredentialsResponse:
-      title: Post aggregatorCredentials Response
-      type: object
-      properties:
-        fastlinkURL:
-          type: string
-        token:
-          type: string
-        username:
-          type: string
     200failure:
       title: Failure Response
       type: object
@@ -563,3 +553,13 @@ components:
           help: Contact support@aeropay.com for help.
           code: AP700
           message: 'Missing required Parameter: ''email'''
+    aggregatorCredentialsResponse:
+      title: Post aggregatorCredentials Response
+      type: object
+      properties:
+        fastlinkURL:
+          type: string
+        token:
+          type: string
+        username:
+          type: string

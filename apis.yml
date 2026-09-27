@@ -30,7 +30,7 @@ tags:
 - Open Banking
 - Fintech
 - Bank linking
-- Financial-Services
+- Financial Services
 - Real-Time Payments
 - Webhook
 - Payouts
@@ -49,6 +49,7 @@ tags_raw:
 - Payouts
 - MCP
 - Risk & fraud
+- Financial-Services
 apis:
 - aid: aeropay:aeropay-webhooks
   name: Aeropay Webhooks

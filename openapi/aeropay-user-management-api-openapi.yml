@@ -354,6 +354,50 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    confirmUserObject:
+      title: Confirm user - MFA Validation
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              description: The id of the user, in uuid format
+            firstName:
+              type: string
+              description: The user's first name
+            lastName:
+              type: string
+              description: The user's last name
+            type:
+              type: string
+              description: Type of user. (consumer, business)
+            email:
+              type: string
+              format: email
+              description: The user's email
+            phoneNumber:
+              type: string
+              description: The user's phone number
+            createdDate:
+              type: string
+              format: date-time
+              description: Date user was created
+            userStatus:
+              type: string
+              format: date-time
+              description: Date user was created
+      example:
+        user:
+          id: 2ac82269-9315-4bb6-8a19-f37e20d50238
+          firstName: JohnNew
+          lastName: DoeNew
+          type: consumer
+          email: test-1754932665@aeropay.com
+          phoneNumber: '+11754932665'
+          createdDate: '2025-02-27T12:59:32+00:00'
+          userStatus: Active
     userRequest:
       title: Post user Request
       required:
@@ -413,50 +457,6 @@ components:
             userStatus:
               type: string
               description: The user's status
-      example:
-        user:
-          id: 2ac82269-9315-4bb6-8a19-f37e20d50238
-          firstName: JohnNew
-          lastName: DoeNew
-          type: consumer
-          email: test-1754932665@aeropay.com
-          phoneNumber: '+11754932665'
-          createdDate: '2025-02-27T12:59:32+00:00'
-          userStatus: Active
-    confirmUserObject:
-      title: Confirm user - MFA Validation
-      type: object
-      properties:
-        user:
-          type: object
-          properties:
-            id:
-              type: string
-              description: The id of the user, in uuid format
-            firstName:
-              type: string
-              description: The user's first name
-            lastName:
-              type: string
-              description: The user's last name
-            type:
-              type: string
-              description: Type of user. (consumer, business)
-            email:
-              type: string
-              format: email
-              description: The user's email
-            phoneNumber:
-              type: string
-              description: The user's phone number
-            createdDate:
-              type: string
-              format: date-time
-              description: Date user was created
-            userStatus:
-              type: string
-              format: date-time
-              description: Date user was created
       example:
         user:
           id: 2ac82269-9315-4bb6-8a19-f37e20d50238

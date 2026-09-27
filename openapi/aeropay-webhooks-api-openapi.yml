@@ -389,48 +389,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    webhookPostResponse:
-      title: Post webhook Response
-      type: object
-      properties:
-        webhooks:
-          type: object
-          description: Object of webhook subscribed to
-          properties:
-            id:
-              type: integer
-              description: Id of webhook subscription.
-            topic:
-              type: string
-            url:
-              type: string
-              format: uri
-            payloadVersion:
-              type: string
-              description: Payload format version for this subscription (e.g.2.0). Determines the shape of delivered webhook payloads.
-              example: '2.0'
-    webhookDeleteResponse:
-      title: Delete webhook Response
-      type: object
-      properties:
-        webhooks:
-          type: array
-          description: Array of deleted webhook objects
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-                description: Id of webhook subscription.
-              topic:
-                type: string
-              url:
-                type: string
-                format: uri
-              payloadVersion:
-                type: string
-                description: Payload format version for this subscription (e.g.2.0). Determines the shape of delivered webhook payloads.
-                example: '2.0'
     webhookGetResponse:
       title: Get webhook Response
       type: object
@@ -453,6 +411,26 @@ components:
                 type: string
                 description: Payload format version for this subscription (e.g.2.0). Determines the shape of delivered webhook payloads.
                 example: '2.0'
+    webhookPostResponse:
+      title: Post webhook Response
+      type: object
+      properties:
+        webhooks:
+          type: object
+          description: Object of webhook subscribed to
+          properties:
+            id:
+              type: integer
+              description: Id of webhook subscription.
+            topic:
+              type: string
+            url:
+              type: string
+              format: uri
+            payloadVersion:
+              type: string
+              description: Payload format version for this subscription (e.g.2.0). Determines the shape of delivered webhook payloads.
+              example: '2.0'
     200failure:
       title: Failure Response
       type: object
@@ -472,3 +450,25 @@ components:
           help: Contact support@aeropay.com for help.
           code: AP700
           message: 'Missing required Parameter: ''email'''
+    webhookDeleteResponse:
+      title: Delete webhook Response
+      type: object
+      properties:
+        webhooks:
+          type: array
+          description: Array of deleted webhook objects
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Id of webhook subscription.
+              topic:
+                type: string
+              url:
+                type: string
+                format: uri
+              payloadVersion:
+                type: string
+                description: Payload format version for this subscription (e.g.2.0). Determines the shape of delivered webhook payloads.
+                example: '2.0'
