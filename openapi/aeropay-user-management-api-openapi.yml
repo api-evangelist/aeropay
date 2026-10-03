@@ -398,32 +398,6 @@ components:
           phoneNumber: '+11754932665'
           createdDate: '2025-02-27T12:59:32+00:00'
           userStatus: Active
-    userRequest:
-      title: Post user Request
-      required:
-      - firstName
-      - lastName
-      - phoneNumber
-      - email
-      type: object
-      properties:
-        firstName:
-          type: string
-          description: First name of user being created
-        lastName:
-          type: string
-          description: Last name of user being created
-        phoneNumber:
-          type: string
-          description: Phone number of user in international format (+11234567890). Landlines, VOIPs, or prepaid numbers are invalid.
-        email:
-          type: string
-          description: Email of user being created
-      example:
-        firstName: Stephanie
-        lastName: Jones
-        phoneNumber: '+11234567890'
-        email: stephjones@aeropay.com
     userGetResponse:
       title: Get user Response
       type: object
@@ -467,25 +441,6 @@ components:
           phoneNumber: '+11754932665'
           createdDate: '2025-02-27T12:59:32+00:00'
           userStatus: Active
-    200failure:
-      title: Failure Response
-      type: object
-      properties:
-        error:
-          type: object
-          properties:
-            code:
-              type: string
-            message:
-              type: string
-            help:
-              type: string
-              description: Support contact information
-      example:
-        error:
-          help: Contact support@aeropay.com for help.
-          code: AP700
-          message: 'Missing required Parameter: ''email'''
     userObject:
       title: Post user - New User and Network User Response
       type: object
@@ -534,3 +489,48 @@ components:
           createdDate: '2025-02-27T12:59:32+00:00'
           userStatus: Active
         mfaType: sms
+    200failure:
+      title: Failure Response
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            help:
+              type: string
+              description: Support contact information
+      example:
+        error:
+          help: Contact support@aeropay.com for help.
+          code: AP700
+          message: 'Missing required Parameter: ''email'''
+    userRequest:
+      title: Post user Request
+      required:
+      - firstName
+      - lastName
+      - phoneNumber
+      - email
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: First name of user being created
+        lastName:
+          type: string
+          description: Last name of user being created
+        phoneNumber:
+          type: string
+          description: Phone number of user in international format (+11234567890). Landlines, VOIPs, or prepaid numbers are invalid.
+        email:
+          type: string
+          description: Email of user being created
+      example:
+        firstName: Stephanie
+        lastName: Jones
+        phoneNumber: '+11234567890'
+        email: stephjones@aeropay.com

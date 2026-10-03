@@ -300,25 +300,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    200failure:
-      title: Failure Response
-      type: object
-      properties:
-        error:
-          type: object
-          properties:
-            code:
-              type: string
-            message:
-              type: string
-            help:
-              type: string
-              description: Support contact information
-      example:
-        error:
-          help: Contact support@aeropay.com for help.
-          code: AP700
-          message: 'Missing required Parameter: ''email'''
     tipConfigurationResponse:
       title: Get tipConfiguration Response
       type: object
@@ -389,3 +370,22 @@ components:
                 enum:
                 - false
                 description: Always `false` in this variant. Do not present tipping at checkout.
+    200failure:
+      title: Failure Response
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            help:
+              type: string
+              description: Support contact information
+      example:
+        error:
+          help: Contact support@aeropay.com for help.
+          code: AP700
+          message: 'Missing required Parameter: ''email'''

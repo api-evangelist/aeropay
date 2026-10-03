@@ -389,18 +389,18 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    webhookGetResponse:
-      title: Get webhook Response
+    webhookDeleteResponse:
+      title: Delete webhook Response
       type: object
       properties:
         webhooks:
           type: array
-          description: Array of subscribed webhook objects
+          description: Array of deleted webhook objects
           items:
             type: object
             properties:
               id:
-                type: integer
+                type: string
                 description: Id of webhook subscription.
               topic:
                 type: string
@@ -450,18 +450,18 @@ components:
           help: Contact support@aeropay.com for help.
           code: AP700
           message: 'Missing required Parameter: ''email'''
-    webhookDeleteResponse:
-      title: Delete webhook Response
+    webhookGetResponse:
+      title: Get webhook Response
       type: object
       properties:
         webhooks:
           type: array
-          description: Array of deleted webhook objects
+          description: Array of subscribed webhook objects
           items:
             type: object
             properties:
               id:
-                type: string
+                type: integer
                 description: Id of webhook subscription.
               topic:
                 type: string
