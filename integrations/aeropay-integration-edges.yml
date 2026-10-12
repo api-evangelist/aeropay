@@ -1,0 +1,16 @@
+generated: '2026-10-12'
+method: none
+source:
+- https://zapier.com/apps/aeropay/integrations
+- https://n8n.io/integrations/aeropay/
+- https://composio.dev/toolkits/aeropay
+- https://monid.ai/tools/aeropay
+checked:
+- https://composio.dev/toolkits/aeropay
+- https://monid.ai/tools/aeropay
+- https://n8n.io/integrations/aeropay/
+- https://zapier.com/apps/aeropay/integrations
+summary: null
+marketplace_apps: []
+edges: []
+templates: []
