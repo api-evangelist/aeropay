@@ -1,5 +1,5 @@
 generated: '2026-10-12'
-method: none
+method: searched
 source:
 - https://zapier.com/apps/aeropay/integrations
 - https://n8n.io/integrations/aeropay/
@@ -9,8 +9,34 @@ checked:
 - https://composio.dev/toolkits/aeropay
 - https://monid.ai/tools/aeropay
 - https://n8n.io/integrations/aeropay/
+- https://registry.financialdataexchange.org/
 - https://zapier.com/apps/aeropay/integrations
 summary: null
 marketplace_apps: []
-edges: []
+edges:
+- partner_name: FDX (Financial Data Exchange)
+  partner: fdx
+  type: contract
+  channel: standard-directory
+  relationship: standard-participant
+  direction: partner-built
+  evidence: https://registry.financialdataexchange.org/
+  contract_reference:
+    register: FDX Registry
+    standard: FDX API
+    spec_file: null
+    register_api: https://registry.financialdataexchange.org/fdxregistryapi/organizations/search/listingTags
+    role: data-access-platform
+    member_type: MEMBER
+    registered_name: Aeropay
+    register_id: 425
+    registered_website: https://www.aeropay.com/
+    country: United States
+    fdx_version:
+    - '4.2'
+    matched_by: domain:aeropay.com
+    detected_by: sweep-fdx.py
+    detected: '2026-10-14'
+  detected_by: sweep-fdx.py
+  first_seen: '2026-10-14'
 templates: []
