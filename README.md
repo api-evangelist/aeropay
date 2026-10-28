@@ -64,70 +64,151 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Aeropay is a Chicago-based fintech operating a pay-by-bank network that moves money directly between
-consumer bank accounts and merchants over ACH, Request for Payment (RfP) and RTP rails, without cards.
-Its product suite is Aerosync (branded bank linking), Pay (merchant acceptance), Payout (real-time
-merchant-to-consumer credits) and Guard (risk decisioning). Aeropay is SOC 2 compliant and audits its ACH
-operations annually against Nacha standards. U.S. bank accounts only.
+Aeropay is a Chicago-based fintech operating a pay-by-bank network that moves money directly between consumer bank accounts and merchants over ACH, Request for Payment (RfP) and RTP rails, without cards. The product suite is Aerosync (branded bank linking and account connectivity), Pay (merchant acceptance of bank payments), Payout (real-time merchant-to-consumer credits) and Guard (risk decisioning and fraud prevention). Integrators use the Aeropay v2 REST API — a 32-operation OpenAPI 3.0.0 contract covering token issuance, user creation and MFA confirmation, bank linking through an aggregator widget, standard, preauthorized, payout and reversal transactions, transaction search, payment links, webhook subscriptions, reporting and merchant reputation — alongside first-party Aerosync bank-linking SDKs for web, React Native, Android, iOS and Flutter. Aeropay publishes a documentation llms.txt, a remote MCP server for the API reference, a nine-topic webhook catalog, a 91-entry error glossary, a NACHA ACH return-code glossary and a substantial sandbox exception-scenario harness. It is SOC 2 compliant and audits its ACH operations annually against NACHA standards.
 
-## What this profile found
+**Areas:** Payments · Pay by Bank · ACH · Open Banking · Fintech · Bank linking · Financial Services · Real-Time Payments · Webhook · Payouts · MCP · Risk & fraud
 
-| | |
+## Aeropay on APIs.io
+
+Everything profiled for Aeropay is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/aeropay/](https://apis.io/providers/aeropay/)** — or go straight to one of the APIs or properties below.
+
+### APIs (9)
+
+- [Aeropay Webhooks](https://apis.io/apis/aeropay/aeropay-webhooks/) — Outbound HTTPS webhook deliveries covering nine topics across the ACH, RfP and RTP rails — transaction_completed, transaction_voided, transaction_refunded,…
+- [Aeropay API MCP Server](https://apis.io/apis/aeropay/aeropay-mcp/) — A remote Model Context Protocol server hosted by Aeropay at https://dev.aero.inc/mcp, documented for Cursor, Windsurf and Claude Desktop. Anonymous…
+- [Aeropay Authentication API](https://apis.io/apis/aeropay/aeropay-authentication-api/) — The Authentication API from Aeropay — 1 operation(s) for authentication.
+- [Aeropay Bank Connection API](https://apis.io/apis/aeropay/aeropay-bank-connection-api/) — The Bank Connection API from Aeropay — 4 operation(s) for bank connection.
+- [Aeropay Create & Manage Transactions API](https://apis.io/apis/aeropay/aeropay-create-manage-transactions-api/) — The Create & Manage Transactions API from Aeropay — 12 operation(s) for create & manage transactions.
+- [Aeropay Merchant Management API](https://apis.io/apis/aeropay/aeropay-merchant-management-api/) — The Merchant Management API from Aeropay — 2 operation(s) for merchant management.
+- [Aeropay Reports API](https://apis.io/apis/aeropay/aeropay-reports-api/) — The Reports API from Aeropay — 3 operation(s) for reports.
+- [Aeropay User Management API](https://apis.io/apis/aeropay/aeropay-user-management-api/) — The User Management API from Aeropay — 2 operation(s) for user management.
+- [Aeropay Webhooks API](https://apis.io/apis/aeropay/aeropay-webhooks-api/) — The Webhooks API from Aeropay — 2 operation(s) for webhooks.
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### AsyncAPI (1)
+
+Event-driven and webhook contracts.
+
+- [Aeropay Webhooks](https://apis.io/asyncapis/aeropay/aeropay-webhooks-asyncapi/)
+
+#### Event channels (9)
+
+Individual events and webhooks the provider emits.
+
+- [merchant_reputation_updated](https://apis.io/channels/aeropay/merchant-reputation-updated/)
+- [preauthorized_transaction_created](https://apis.io/channels/aeropay/preauthorized-transaction-created/)
+- [transaction_completed](https://apis.io/channels/aeropay/transaction-completed/)
+- [transaction_declined](https://apis.io/channels/aeropay/transaction-declined/)
+- [transaction_refunded](https://apis.io/channels/aeropay/transaction-refunded/)
+- [transaction_resolved](https://apis.io/channels/aeropay/transaction-resolved/)
+- [transaction_voided](https://apis.io/channels/aeropay/transaction-voided/)
+- [user_active](https://apis.io/channels/aeropay/user-active/)
+- [user_suspended](https://apis.io/channels/aeropay/user-suspended/)
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [api-aeropay](https://apis.io/servers/aeropay/api-aeropay/)
+
+#### Overlays (1)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [Aeropay V2 Overlay](https://apis.io/overlays/aeropay/aeropay-v2-overlay/)
+
+#### Security (3)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Aeropay Authentication](https://apis.io/security/aeropay/aeropay-authentication/)
+- [Aeropay Domain Security](https://apis.io/security/aeropay/aeropay-domain-security/)
+- [Aeropay Trust Center](https://apis.io/security/aeropay/aeropay-trust-center/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Aeropay Plans Pricing](https://apis.io/plans/aeropay/aeropay-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Aeropay Rate Limits](https://apis.io/rate-limits/aeropay/aeropay-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://www.aeropay.com/)
+- [Documentation](https://dev.aero.inc/docs/getting-started)
+- [Getting started](https://dev.aero.inc/docs/api-quick-start)
+- [API reference](https://dev.aero.inc/reference/post_v2-token)
+- [Pricing](https://www.aeropay.com/demo)
+- [Sign up](https://portal.aeropay.com/login)
+- [Support](https://www.aeropay.com/personal/support)
+- [Changelog](https://dev.aero.inc/docs/release-notes)
+- [Blog](https://www.aeropay.com/blog)
+- [Compliance](https://www.aeropay.com/trust-center)
+- [Terms of service](https://www.aeropay.com/legal/terms-of-service)
+- [Privacy policy](https://www.aeropay.com/legal/privacy-policy)
+- [GitHub](https://github.com/Aeropay-inc)
+
+## API Evangelist rating
+
+**Kin Score 47.6** — developing · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
 |---|---|
-| Machine-readable contract | **Yes** — OpenAPI 3.0.0, 26 paths, 32 operations |
-| Where it was found | The ReadMe API registry backing the docs site, `https://dash.readme.com/api/v1/api-registry/dsdmfqmtkajkc6` |
-| Production base URL | `https://api.aeropay.com/v2` |
-| Sandbox base URL | `https://api.sandbox-pay.aero.inc/v2` |
-| Remote MCP server | **Yes** — `https://dev.aero.inc/mcp`, anonymous `tools/list` returns 4 tools |
-| Webhooks | 9 documented topics across ACH, RfP and RTP |
-| First-party SDKs | 6 Aerosync bank-linking packages (npm x2, Maven Central, pub.dev, Swift PM, CDN) |
-| Error surface | 109 AP-prefixed codes plus the full 70-entry Nacha ACH return-code registry |
-| `/.well-known/` surface | **None** — 14 paths probed on 8 hosts, zero hits |
-| Published pricing | **None** — `/pricing` serves the demo form |
-| Status page | **None** — `status.aeropay.com` and `status.aero.inc` do not resolve |
+| Discoverability | 75.0 |
+| Contract quality | 54.3 |
+| Contract governance | 18.2 |
+| Operational transparency | 18.4 |
+| Developer ergonomics | 58.9 |
+| Access clarity | 47.4 |
 
-## How the contract was found
+**Agent readiness 42.6** — agent-native
 
-The developer portal at `developer.aeropay.com` does not resolve. The live docs are at `dev.aero.inc`, a
-ReadMe-hosted site whose `/openapi.json` returns an HTML 404 shell and whose API host answers
-`403 {"message":"Missing Authentication Token"}` on every unmatched route — both of which look like "no
-spec" on a shallow pass. The real contract was recovered from the ReadMe API registry UUID embedded in the
-reference page source. Ownership was confirmed on the spec's own terms: `info.title` is "Aeropay v2 API",
-`servers[]` is `api.sandbox-pay.aero.inc` (`aero.inc` is Aeropay's own developer domain), and the
-description names `support@aeropay.com`.
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | documented (partial credit) |
+| MCP Server | platform (partial credit) |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | verified |
+| Error Semantics | documented (partial credit) |
+| OpenAPI Examples | verified |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | yes |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | paginated |
+| Operation Distinctiveness | — |
 
-Aeropay also publishes two `llms.txt` files — a 98-entry documentation index at `dev.aero.inc/llms.txt`
-carrying per-operation error glossaries, and a curated marketing index at `www.aeropay.com/llms.txt`.
+**Regulatory alignment 29.9** — Banking & Open Finance
 
-## Notable gaps
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/aeropay/](https://apis.io/providers/aeropay/).
 
-- **The contract declares no `operationId` on any of its 32 operations**, no `tags`, and an **empty
-  `components.securitySchemes`** — so the bearer-token model that 31 operations require is invisible to any
-  machine reading the spec alone. `servers[]` names only the sandbox host.
-- **Aeropay returns most errors inside an HTTP 200.** Its own glossary opens with "NOTE: All Aeropay errors
-  return with an HTTP 200 response." A client branching on status code alone reads a declined payment as a
-  success.
-- **Idempotency covers 4 of 16 mutating operations** — the four money-movement creates, and it is optional
-  even there. `POST /v2/capturePreauthTransaction` moves money and has no idempotency key at all.
-- **No API changelog.** The two "Release Notes" pages cover only the Aerosync SDKs, and their most recent
-  dated entry is 2025-09-30 while the packages themselves shipped in August 2026. Material contract changes
-  (multiple independent reversals, the idempotency surface, `payloadVersion: 2.0` webhooks) are announced
-  only inside the affected reference page's prose.
-- **No vulnerability disclosure program, no `security.txt`, no status page, no rate limits, no published
-  pricing, and no self-serve sandbox** — credentials require an email to support or a sales demo.
+## How this profile is made
 
-## Reversibility
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
 
-Graded **verified**. `POST /v2/reverseTransaction` voids a transaction outright within the same business
-day and creates a 2-3 day reverse-direction refund after batching; `DELETE /v2/preauthTransaction/{id}`
-cancels an authorization before capture. Payouts and payment links have **no documented reversal** and are
-recorded as irreversible. See `conventions/aeropay-conventions.yml`.
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Aeropay: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
 
-## Artifacts in this repository
+## Open an issue
 
-`openapi/` `openapi/_original/` `overlays/` `mcp/` `asyncapi/` `llms/` `well-known/` `packages/`
-`authentication/` `conventions/` `errors/` `data-model/` `conformance/` `lifecycle/` `changelog/`
-`components/` `sandbox/` `security/` `plans/` `rate-limits/` `skills/`
-
-- https://www.aeropay.com/
-- https://dev.aero.inc/docs/getting-started
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/aeropay/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
