@@ -120,6 +120,12 @@ OpenAPI overlays, including conversational phrasing for each operation.
 
 - [Aeropay V2 Overlay](https://apis.io/overlays/aeropay/aeropay-v2-overlay/)
 
+#### Governance rules (1)
+
+Spectral rulesets for the provider's contracts.
+
+- [Aeropay API Rules](https://apis.io/rules/aeropay/aeropay-rules/)
+
 #### Security (3)
 
 Authentication, trust centre, and vulnerability disclosure.
@@ -139,6 +145,12 @@ Published plans, tiers and prices.
 Published request limits.
 
 - [Aeropay Rate Limits](https://apis.io/rate-limits/aeropay/aeropay-rate-limits/)
+
+#### FinOps (1)
+
+What the API costs to run, by operation.
+
+- [Aeropay Finops](https://apis.io/finops/aeropay/aeropay-finops/)
 
 ## Where to find this API
 
@@ -160,18 +172,18 @@ Links to the company's own pages. This repository publishes no copy of their spe
 
 ## API Evangelist rating
 
-**Kin Score 47.6** — developing · rubric 0.25.0 · scored 2026-10-23
+**Kin Score 53.6** — developing · rubric 0.28.1 · scored 2026-11-21
 
 | Facet | Score |
 |---|---|
 | Discoverability | 75.0 |
 | Contract quality | 54.3 |
-| Contract governance | 18.2 |
-| Operational transparency | 18.4 |
-| Developer ergonomics | 58.9 |
-| Access clarity | 47.4 |
+| Contract governance | 31.8 |
+| Operational transparency | 26.2 |
+| Developer ergonomics | 73.2 |
+| Access clarity | 53.2 |
 
-**Agent readiness 42.6** — agent-native
+**Agent readiness 41.8** — agent-native
 
 | Agent-readiness dimension | Result |
 |---|---|
@@ -196,8 +208,12 @@ Links to the company's own pages. This repository publishes no copy of their spe
 | Agentic Commerce | — |
 | Pagination Ratio | paginated |
 | Operation Distinctiveness | — |
+| MCP Tool Quality | na |
+| Onboarding Descriptor | — |
+| Dns Aid Index | na |
+| Markdown Negotiation | na |
 
-**Regulatory alignment 29.9** — Banking & Open Finance
+**Regulatory alignment 25.2** — Banking & Open Finance
 
 The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/aeropay/](https://apis.io/providers/aeropay/).
 
